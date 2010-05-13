@@ -1,0 +1,6 @@
+Revision history for App-perlmv
+
+0.24     2010-05-12
+
+         First release to CPAN. Prior versions were not released and
+         named C<perlrename>.
