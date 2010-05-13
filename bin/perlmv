@@ -18,6 +18,8 @@ else {
     die "FATAL: Can't determine home directory\n" unless $HOMEDIR;
 }
 
+my $scriptlets;
+
 my %opts;
 getopts('ce:D:dfhLorS:VvW:', \%opts);
 
@@ -57,16 +59,19 @@ Options:
 USAGE
 
 if ($opts{L}) {
-    my $s = find_scriptlets();
-    print $_, "\n" for keys %$s;
+    load_scriptlets();
+    for (sort keys %$scriptlets) {
+        if ($opts{v}) {
+            print format_scriptlet_source($_), "\n";
+        } else {
+            print $_, "\n";
+        }
+    }
     exit 0;
 }
 
 if ($opts{S}) {
-    my $s = find_scriptlets();
-    die "FATAL: Scriptlet `$opts{S}` not found\n" unless $s->{$opts{S}};
-    print "# Scriptlet: $opts{S} (from ", $s->{$opts{S}}{from}, ")\n";
-    print $s->{$opts{S}}{code}, "\n";
+    print format_scriptlet_source($opts{S});
     exit 0;
 }
 
@@ -76,7 +81,7 @@ if ($opts{W}) {
 }
 
 if ($opts{D}) {
-    delete_scriptlet($opts{D});
+    delete_user_scriptlet($opts{D});
     exit 0;
 }
 
@@ -88,9 +93,7 @@ if ($opts{e}) {
     die "FATAL: Must specify -e or scriptlet name in first argument\n"
         unless @ARGV;
     $name = shift @ARGV;
-    my $s = find_scriptlets();
-    $s->{$name} or die "FATAL: Can't find scriptlet `$name`\n";
-    $code = $s->{$name}{code};
+    $code = load_scriptlet($name);
 }
 
 $opts{v} = 1 if $opts{d};
@@ -114,6 +117,32 @@ if ($^O =~ /win32/i) {
 
 my %n = ();
 process_items(@items);
+
+# subroutines
+
+sub format_scriptlet_source {
+    my ($name) = @_;
+    load_scriptlets();
+    die "FATAL: Scriptlet `$opts{S}` not found\n"
+        unless $scriptlets->{$name};
+    "# Scriptlet: $name (from ", $scriptlets->{$name}{from}, ")\n" .
+    $scriptlets->{$name}{code} .
+    ($scriptlets->{$name}{code} =~ /\n\z/ ? "" : "\n");
+}
+
+sub load_scriptlet {
+    my ($name) = @_;
+    load_scriptlets();
+    die "FATAL: Can't find scriptlet `$name`"
+        unless !$scriptlets->{$name};
+    $scriptlets->{$name}{code};
+}
+
+sub load_scriptlets {
+    if (!$scriptlets) {
+        $scriptlets = find_scriptlets();
+    }
+}
 
 sub find_scriptlets {
     my $res = {};
@@ -182,7 +211,7 @@ sub write_scriptlet {
         die "FATAL: Can't write to $HOMEDIR/.perlmv/scriptlets/$name: $!\n";
 }
 
-sub delete_scriptlet {
+sub delete_user_scriptlet {
     my ($name) = @_;
     unlink "$HOMEDIR/.perlmv/scriptlets/$name";
 }
