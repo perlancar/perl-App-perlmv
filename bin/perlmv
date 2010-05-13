@@ -405,8 +405,6 @@ conflicts, recursive mode, and saving and loading scriptlets.
 
 =item * Scriptlet should be able to receive arguments.
 
-=item * Option to
-
 =back
 
 =head1 SEE ALSO
