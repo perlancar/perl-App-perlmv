@@ -1,5 +1,12 @@
 Revision history for App-perlmv
 
+0.26     2010-05-13
+
+         Rename scriptlet: with-numbers- > to-number-ext.
+
+         Add scriptlets: unaccent, to-timestamp-ext.
+
+
 0.25     2010-05-13
 
          Documentation.
