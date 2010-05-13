@@ -7,7 +7,7 @@ use File::Spec;
 use Getopt::Std;
 use Cwd qw(abs_path getcwd);
 
-our $VERSION = 0.25;
+our $VERSION = 0.26;
 
 our $HOMEDIR;
 if ($ENV{TESTING_HOME}) { $HOMEDIR = $ENV{TESTING_HOME} }
@@ -291,7 +291,7 @@ perlmv - Rename files using Perl code
 
 =head1 VERSION
 
-0.25
+0.26
 
 =head1 SYNOPSIS
 
