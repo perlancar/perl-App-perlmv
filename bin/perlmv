@@ -394,6 +394,10 @@ via B<rename> in Debian) which comes with Perl. This script reinvents
 prename and offers more features, e.g.: automatic renaming in case of
 conflicts, recursive mode, and saving and loading scriptlets.
 
+=head1 BUGS/TODOS
+
+Patches for Windows welcome.
+
 =head1 SEE ALSO
 
 L<prename>.
