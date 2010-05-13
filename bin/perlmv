@@ -124,7 +124,7 @@ sub format_scriptlet_source {
     load_scriptlets();
     die "FATAL: Scriptlet `$opts{S}` not found\n"
         unless $scriptlets->{$name};
-    "# Scriptlet: $name (from ", $scriptlets->{$name}{from}, ")\n" .
+    "### Name: $name (from ", $scriptlets->{$name}{from}, ")\n" .
     $scriptlets->{$name}{code} .
     ($scriptlets->{$name}{code} =~ /\n\z/ ? "" : "\n");
 }
