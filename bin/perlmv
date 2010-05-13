@@ -133,7 +133,7 @@ sub load_scriptlet {
     my ($name) = @_;
     load_scriptlets();
     die "FATAL: Can't find scriptlet `$name`"
-        unless !$scriptlets->{$name};
+        unless $scriptlets->{$name};
     $scriptlets->{$name}{code};
 }
 
