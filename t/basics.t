@@ -24,9 +24,11 @@ files_are('uc 1 (-d)', ['a.txt', 'b1.txt', 'c.txt', 'c2.txt']);
 perlmv('-v', 'uc', files());
 files_are('uc 2 (-v)', ['A.TXT', 'B1.TXT', 'C.TXT', 'C2.TXT']);
 
-perlmv('-e', 's/\d+//g', '-W', 'remove-digits');
+perlmv('-e', 's/\d+//g', '-w', 'remove-digits');
 perlmv('remove-digits', files());
 files_are('remove-digits 1', ['A.TXT', 'B.TXT', 'C.TXT', 'C.TXT.1']);
+
+perlmv('-D', 'remove-digits');
 
 chdir "/";
 

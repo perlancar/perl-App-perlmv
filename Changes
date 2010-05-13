@@ -2,6 +2,10 @@ Revision history for App-perlmv
 
 0.26     2010-05-13
 
+         Rename options: -S -> -s, -W -> -w, -L -> -l.
+
+         Add option: -S (skip symlinks).
+
          Rename scriptlet: with-numbers- > to-number-ext.
 
          Add scriptlets: unaccent, to-timestamp-ext.

@@ -20,7 +20,7 @@ else {
 my $scriptlets;
 
 my %opts;
-getopts('ce:D:dfhLorS:VvW:', \%opts);
+getopts('ce:D:dfhlorSs:Vvw:', \%opts);
 
 if ($opts{V}) { print "perlmv version $VERSION\n"; exit 0 }
 if ($opts{h}) { print <<'USAGE'; exit 0 }
@@ -33,9 +33,9 @@ Usage:
  perlmv [options] <scriptlet> <file...>
  perlmv [options] -e <code> <file...>
 
- perlmv -e <code> -W <name>
- perlmv -L
- perlmv -S <name>
+ perlmv -e <code> -w <name>
+ perlmv -l
+ perlmv -s <name>
  perlmv -D <name>
 
 Options:
@@ -48,16 +48,17 @@ Options:
  -o  Overwrite (by default, ".1", ".2", and so on will be appended to
      avoid overwriting existing files)
  -r  Recursive
+ -S  Do not process symlinks
  -V  Print version and exit
  -v  Verbose
 
- -L  list all scriptlets
- -S <NAME> Show source code for scriptlet
- -W <NAME> Write code specified in -e as scriptlet
+ -l  list all scriptlets
+ -s <NAME> Show source code for scriptlet
+ -w <NAME> Write code specified in -e as scriptlet
  -D <NAME> Delete scriptlet
 USAGE
 
-if ($opts{L}) {
+if ($opts{l}) {
     load_scriptlets();
     for (sort keys %$scriptlets) {
         if ($opts{v}) {
@@ -69,13 +70,13 @@ if ($opts{L}) {
     exit 0;
 }
 
-if ($opts{S}) {
-    print format_scriptlet_source($opts{S});
+if ($opts{s}) {
+    print format_scriptlet_source($opts{s});
     exit 0;
 }
 
-if ($opts{W}) {
-    write_scriptlet($opts{W}, $opts{e});
+if ($opts{w}) {
+    write_scriptlet($opts{w}, $opts{e});
     exit 0;
 }
 
@@ -122,7 +123,7 @@ process_items(@items);
 sub format_scriptlet_source {
     my ($name) = @_;
     load_scriptlets();
-    die "FATAL: Scriptlet `$opts{S}` not found\n"
+    die "FATAL: Scriptlet `$name` not found\n"
         unless $scriptlets->{$name};
     "### Name: $name (from ", $scriptlets->{$name}{from}, ")\n" .
     $scriptlets->{$name}{code} .
@@ -228,7 +229,8 @@ sub run_code {
 sub process_items {
     my @items = @_;
     for my $item (@items) {
-        if (-d $item) {
+        next if $opts{S} && (-l $item);
+        if (-d _) {
             next if $opts{f};
             if ($opts{r}) {
                 my $cwd = getcwd();
@@ -377,12 +379,13 @@ L<App::perlmv::scriptlets::std>.
  -o  Overwrite (by default, ".1", ".2", and so on will be appended to
      avoid overwriting existing files)
  -r  Recursive
+ -S  Do not process symlinks
  -V  Print version and exit
  -v  Verbose
 
- -L  list all scriptlets
- -S <NAME> Show source code for scriptlet
- -W <NAME> Write code specified in -e as scriptlet
+ -l  list all scriptlets
+ -s <NAME> Show source code for scriptlet
+ -w <NAME> Write code specified in -e as scriptlet
  -D <NAME> Delete scriptlet
 
 =head1 FAQ
@@ -396,7 +399,15 @@ conflicts, recursive mode, and saving and loading scriptlets.
 
 =head1 BUGS/TODOS
 
-Patches for Windows welcome.
+=over 4
+
+=item * Patches for Windows welcome.
+
+=item * Scriptlet should be able to receive arguments.
+
+=item * Option to
+
+=back
 
 =head1 SEE ALSO
 
