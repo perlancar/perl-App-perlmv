@@ -4,6 +4,8 @@ Revision history for App-perlmv
 
          Documentation.
 
+         Sort -L output. -Lv will show each scriptlet's source.
+
 
 0.24     2010-05-12
 

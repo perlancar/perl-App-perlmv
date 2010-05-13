@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-# ABSTRACT: Rename files using Perl code.
 
 use strict;
 use warnings;
@@ -8,7 +7,7 @@ use File::Spec;
 use Getopt::Std;
 use Cwd qw(abs_path getcwd);
 
-our $VERSION = 0.24;
+our $VERSION = 0.25;
 
 our $HOMEDIR;
 if ($ENV{TESTING_HOME}) { $HOMEDIR = $ENV{TESTING_HOME} }
@@ -283,6 +282,14 @@ sub process_item {
 
 1;
 __END__
+
+=head1 NAME
+
+perlmv - Rename files using Perl code
+
+=head1 VERSION
+
+0.25
 
 =head1 SYNOPSIS
 
