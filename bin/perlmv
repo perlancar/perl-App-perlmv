@@ -349,10 +349,17 @@ L<App::perlmv::scriptlets::std>.
  -W <NAME> Write code specified in -e as scriptlet
  -D <NAME> Delete scriptlet
 
-=head1 HISTORY
+=head1 FAQ
 
-I wrote C<perlrename> 0.01 back in 2003 and have been using it
-daily. In 2010 I uploaded version 0.24 as C<perlmv> to CPAN, with
-ability to store & read scriptlets.
+=head2 Why should I use perlmv? There is prename already?
+
+Yes, there is a very similar script called B<prename> (also accessible
+via B<rename> in Debian) which comes with Perl. This script reinvents
+prename and offers more features, e.g.: automatic renaming in case of
+conflicts, recursive mode, and saving and loading scriptlets.
+
+=head1 SEE ALSO
+
+L<prename>.
 
 =cut
