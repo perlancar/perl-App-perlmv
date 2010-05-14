@@ -12,6 +12,7 @@ my $dir = tempdir(CLEANUP=>1);
 chdir $dir or die "Can't chdir to $dir: $!";
 $ENV{TESTING_HOME} = $dir;
 $ENV{PATH} = "/usr/bin:/bin";
+$ENV{ENV} = "";
 
 create_files("A.txt", "B1.txt", "C2.txt", "c.txt");
 
