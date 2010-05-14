@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More tests => 6;
 use File::Temp qw(tempdir);
 use FindBin '$Bin'; ($Bin) = $Bin =~ /(.+)/;
 
@@ -14,22 +14,28 @@ $ENV{TESTING_HOME} = $dir;
 $ENV{PATH} = "/usr/bin:/bin";
 $ENV{ENV} = "";
 
-create_files("A.txt", "B1.txt", "C2.txt", "c.txt");
+create_files("a.txt", "b1.txt", "c2.txt", "d3");
 
-perlmv('-ve', '$_=lc', files());
-files_are('lc 1 (-e)', ['a.txt', 'b1.txt', 'c.txt', 'c2.txt']);
+perlmv('-ve', 's/\.txt/.text/i', files());
+files_are('-e', ['a.text', 'b1.text', 'c2.text', 'd3']);
 
-perlmv('-d', 'uc', files());
-files_are('uc 1 (-d)', ['a.txt', 'b1.txt', 'c.txt', 'c2.txt']);
+perlmv('-d', 'to-number-ext', files());
+files_are('-d (dry-run)', ['a.text', 'b1.text', 'c2.text', 'd3']);
 
-perlmv('-v', 'uc', files());
-files_are('uc 2 (-v)', ['A.TXT', 'B1.TXT', 'C.TXT', 'C2.TXT']);
+perlmv('-v', 'to-number-ext', files());
+files_are('use builtin scriptlet (to-number-ext)', ['1.text', '2.text', '3.text', '4']);
 
-perlmv('-e', 's/\d+//g', '-w', 'remove-digits');
-perlmv('remove-digits', files());
-files_are('remove-digits 1', ['A.TXT', 'B.TXT', 'C.TXT', 'C.TXT.1']);
+perlmv('-e', 's/\..+//g', '-w', 'remove-ext');
+perlmv('remove-ext', files());
+files_are('use saved scriptlet', ['1', '2', '3', '4']);
 
-perlmv('-D', 'remove-digits');
+perlmv('-D', 'remove-ext');
+
+perlmv('-e', '$_="a"', files());
+files_are('automatic .\d+ suffix on conflict', ['a', 'a.1', 'a.2', 'a.3']);
+
+perlmv('-oe', '$_="b"', files());
+files_are('-o (overwrite)', ['b']);
 
 chdir "/";
 
@@ -38,7 +44,7 @@ sub create_files {
 }
 
 sub files {
-    my @res = sort {lc($a) cmp lc($b)} glob("*");
+    my @res = sort map { lc } glob("*");
     #print "DEBUG: files() = ", join(", ", @res), "\n";
     @res;
 }
