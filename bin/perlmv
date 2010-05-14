@@ -390,12 +390,31 @@ L<App::perlmv::scriptlets::std>.
 
 =head1 FAQ
 
-=head2 Why should I use perlmv? There is prename already?
+=head2 Why should I use perlmv? There is prename (File::Rename) already?
 
 Yes, there is a very similar script called B<prename> (also accessible
 via B<rename> in Debian) which comes with Perl. This script reinvents
 prename and offers more features, e.g.: automatic renaming in case of
 conflicts, recursive mode, and saving and loading scriptlets.
+
+=head2 And there is also pmv (File::PerlMove)!
+
+Okay, you got me. I didn't do my homework. The "rename files using
+Perl code/expression" is pretty obvious and has surely come up on
+other CPAN authors' minds. To be honest, this is a script which I
+wrote years ago (at least in 2003, or earlier) and have been using for
+years, personally. Admittedly I uploaded this script to CPAN without
+careful checking of existing solutions on CPAN. But then, lots of
+other CPAN modules are also overlapping in functionality with one
+another.
+
+Anyway, I plan to improve perlmv as I see fit, mainly for my own
+needs. I plan to borrow some features from prename/pmv, and welcome
+them borrowing features from perlmv. I welcome patches. And I am
+willing to submit patches to prename/pmv after some discussions with
+the respective authors. And lastly, I am also open to the idea of
+merging perlmv to either pername/pmv, if I can get all the features I
+love in perlmv into those projects.
 
 =head1 BUGS/TODOS
 
