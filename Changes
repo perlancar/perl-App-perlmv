@@ -1,5 +1,10 @@
 Revision history for App-perlmv
 
+0.27     2010-05-14
+
+         Adjust test to account for case-insensitive filesystems.
+
+
 0.26     2010-05-13
 
          Rename options: -S -> -s, -W -> -w, -L -> -l.
