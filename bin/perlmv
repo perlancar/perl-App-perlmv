@@ -115,10 +115,6 @@ __END__
 
 perlmv - Rename files using Perl code
 
-=head1 VERSION
-
-0.27
-
 =head1 SYNOPSIS
 
 Usage:
