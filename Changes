@@ -6,6 +6,9 @@ Revision history for App-perlmv
 
          Add option: -r (reverse order)
 
+         $_ will be set to the result of code, if defined (so we can
+         just say -e 'lc' instead of -e '$_=lc')
+
 
 0.27     2010-05-14
 
