@@ -20,7 +20,7 @@ else {
 my $scriptlets;
 
 my %opts;
-getopts('ce:D:dfhlorSs:Vvw:', \%opts);
+getopts('ce:D:dfhloRrSs:Vvw:', \%opts);
 
 if ($opts{V}) { print "perlmv version $VERSION\n"; exit 0 }
 if ($opts{h}) { print <<'USAGE'; exit 0 }
@@ -47,7 +47,8 @@ Options:
  -h  Show this help
  -o  Overwrite (by default, ".1", ".2", and so on will be appended to
      avoid overwriting existing files)
- -r  Recursive
+ -R  Recursive
+ -r  reverse order of processing (by default order is asciibetically)
  -S  Do not process symlinks
  -V  Print version and exit
  -v  Verbose
@@ -227,12 +228,12 @@ sub run_code {
 }
 
 sub process_items {
-    my @items = @_;
+    my @items = $opts{r} ? (reverse sort @_) : (sort @_);
     for my $item (@items) {
         next if $opts{S} && (-l $item);
         if (-d _) {
             next if $opts{f};
-            if ($opts{r}) {
+            if ($opts{R}) {
                 my $cwd = getcwd();
                 if (chdir $item) {
                     print "INFO: chdir `$cwd/$item` ...\n" if $opts{v};
@@ -378,7 +379,8 @@ L<App::perlmv::scriptlets::std>.
  -h  Show this help
  -o  Overwrite (by default, ".1", ".2", and so on will be appended to
      avoid overwriting existing files)
- -r  Recursive
+ -R  Recursive
+ -r  Reverse order of processing (by default order is asciibetically)
  -S  Do not process symlinks
  -V  Print version and exit
  -v  Verbose

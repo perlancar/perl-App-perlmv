@@ -1,5 +1,12 @@
 Revision history for App-perlmv
 
+0.28     NOT YET RELEASED
+
+         Rename option: -r (recursive) -> -R
+
+         Add option: -r (reverse order)
+
+
 0.27     2010-05-14
 
          Adjust test to account for case-insensitive filesystems.

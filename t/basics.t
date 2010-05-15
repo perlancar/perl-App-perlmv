@@ -3,16 +3,14 @@
 use strict;
 use warnings;
 use Test::More tests => 6;
-use File::Temp qw(tempdir);
-use FindBin '$Bin'; ($Bin) = $Bin =~ /(.+)/;
+use FindBin '$Bin';
+($Bin) = $Bin =~ /(.+)/;
 
-my ($perl) = $^X =~ /(.+)/;
+our $Perl;
+our $Dir;
 
-my $dir = tempdir(CLEANUP=>1);
-chdir $dir or die "Can't chdir to $dir: $!";
-$ENV{TESTING_HOME} = $dir;
-$ENV{PATH} = "/usr/bin:/bin";
-$ENV{ENV} = "";
+require "$Bin/testlib.pl";
+prepare_for_testing();
 
 create_files("a.txt", "b1.txt", "c2.txt", "d3");
 
@@ -39,27 +37,3 @@ files_are('-o (overwrite)', ['b']);
 
 chdir "/";
 
-sub create_files {
-    do {open F, ">$_"; close F} for @_;
-}
-
-sub files {
-    my @res = sort map { lc } glob("*");
-    #print "DEBUG: files() = ", join(", ", @res), "\n";
-    @res;
-}
-
-sub files_are {
-    my ($tname, $files) = @_;
-    my @rfiles = files();
-    is_deeply(\@rfiles, $files, $tname);
-}
-
-sub perlmv {
-    my @args;
-    do { /(.*)/; push @args, $1 } for @_;
-    my @cmd =($perl, "$Bin/../bin/perlmv", @args);
-    system @cmd;
-    #print "DEBUG: system(", join(", ", @cmd), ")\n";
-    die "Can't system(", join(" ", @cmd), "): $?" if $?;
-}
