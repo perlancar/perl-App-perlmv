@@ -5,12 +5,10 @@ use warnings;
 use App::perlmv;
 use Getopt::Std;
 
-our $VERSION = $App::Perlmv::VERSION;
-
 my %opts;
 getopts('ce:D:dfhloRrSs:Vvw:', \%opts);
 
-if ($opts{V}) { print "perlmv version $VERSION\n"; exit 0 }
+if ($opts{V}) { print "perlmv version $App::perlmv::VERSION\n"; exit 0 }
 if ($opts{h}) { print <<'USAGE'; exit 0 }
 Rename files using Perl code.
 
