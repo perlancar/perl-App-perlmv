@@ -208,7 +208,7 @@ sub process_item {
 
 sub format_scriptlet_source {
     my ($self, $name) = @_;
-    load_scriptlets();
+    $self->load_scriptlets();
     die "FATAL: Scriptlet `$name` not found\n"
         unless $self->{scriptlets}{$name};
     "### Name: $name (from ", $self->{scriptlets}{$name}{from}, ")\n" .

@@ -24,6 +24,9 @@ perlmv('-v', 'to-number-ext', files());
 files_are('use builtin scriptlet (to-number-ext)', ['1.text', '2.text', '3.text', '4']);
 
 perlmv('-e', 's/\..+//g', '-w', 'remove-ext');
+
+perlmv('-s', 'remove-ext');
+
 perlmv('remove-ext', files());
 files_are('use saved scriptlet', ['1', '2', '3', '4']);
 
