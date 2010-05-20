@@ -1,5 +1,14 @@
 Revision history for App-perlmv
 
+0.30     2010-05-21
+
+         Add option: -p (create intermediate dirs).
+
+         Add option: -M (mode rename/copy/symlink/link).
+
+         Add new commands: perlcp, perlln, perlln_s.
+
+
 0.29     2010-05-15
 
          Fix -v.

@@ -37,13 +37,19 @@ sub files_are {
     is_deeply(\@rfiles, $files, $tname);
 }
 
-sub perlmv {
+sub _perlmv {
+    my $cmd = shift;
     my @args;
     do { /(.*)/; push @args, $1 } for @_;
-    my @cmd =($Perl, "$Bin/../bin/perlmv", @args);
+    my @cmd =($Perl, "$Bin/../bin/$cmd", @args);
     system @cmd;
     #print "DEBUG: system(", join(", ", @cmd), ")\n";
     die "Can't system(", join(" ", @cmd), "): $?" if $?;
 }
+
+sub perlmv   { _perlmv("perlmv",   @_) }
+sub perlcp   { _perlmv("perlcp",   @_) }
+sub perlln   { _perlmv("perlln",   @_) }
+sub perlln_s { _perlmv("perlln_s", @_) }
 
 1;

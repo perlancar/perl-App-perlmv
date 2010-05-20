@@ -4,8 +4,11 @@ package App::perlmv;
 use strict;
 use warnings;
 use Cwd qw(abs_path getcwd);
+use File::Copy;
 use File::Find;
+use File::Path qw(make_path);
 use File::Spec;
+use Getopt::Std;
 
 =for Pod::Coverage .+
 
@@ -32,6 +35,7 @@ sub new {
         process_symlink => 1,
         recursive => 0,
         verbose => 0,
+        mode => 'rename',
     }, $class;
 }
 
@@ -198,11 +202,53 @@ sub process_item {
         }
         $self->{_exists}{"$cwd/$new"}++;
     }
+    my $action;
+    if (!defined($self->{mode}) || $self->{mode} =~ /^(rename|r)$/) {
+        $action = "rename";
+    } elsif ($self->{mode} =~ /^(copy|c)$/) {
+        $action = "copy";
+    } elsif ($self->{mode} =~ /^(symlink|sym|s)$/) {
+        $action = "symlink";
+    } elsif ($self->{mode} =~ /^(hardlink|h|link|l)$/) {
+        $action = "link";
+    } else {
+        die "Unknown mode $self->{mode}, please use one of: ".
+            "rename (r), copy (c), symlink (s), or link (l).";
+    }
     print "DRYRUN: " if $self->{dry_run};
-    print "`$old` -> `$new`\n" if $self->{verbose};
+    print "$action `$old` -> `$new`\n" if $self->{verbose};
     unless ($self->{dry_run}) {
-        my $res = rename $old, $new;
-        warn "ERROR: failed renaming $old -> $new\n" unless $res;
+        my $res;
+
+        if ($self->{create_intermediate_dirs}) {
+            my ($vol, $dir, $file) = File::Spec->splitpath($new);
+            unless (-e $dir) {
+                make_path($dir, {error => \my $err});
+                for (@$err) {
+                    my ($file, $message) = %$_;
+                    warn "ERROR: Can't mkdir `$dir`: $message" .
+                        ($file eq '' ? '' : " ($file)") . "\n";
+                }
+                return if @$err;
+            }
+        }
+
+        my $err = "";
+        if ($action eq 'rename') {
+            $res = rename $old, $new;
+            $err = $! unless $res;
+        } elsif ($action eq 'copy') {
+            $res = copy $old, $new;
+            $err = $! unless $res;
+            # XXX copy mtime, ctime, etc
+        } elsif ($action eq 'symlink') {
+            $res = symlink $old, $new;
+            $err = $! unless $res;
+        } elsif ($action eq 'link') {
+            $res = link $old, $new;
+            $err = $! unless $res;
+        }
+        warn "ERROR: $action failed `$old` -> `$new`: $err\n" unless $res;
     }
 }
 
@@ -222,6 +268,126 @@ sub rename {
     $self->compile_code();
     $self->{_exists} = {};
     $self->process_items(@items);
+}
+
+sub __big_ugly_wrapper {
+    # because some platforms don't support ln and ln -s. otherwise i
+    # would just link the 'perlmv' command to 'perlcp', 'perlln',
+    # perlln_s'.
+
+    my %opts;
+    getopts('ce:D:dfhlM:opRrSs:Vvw:', \%opts);
+
+    # -m is reserved for file mode
+
+    if ($opts{V}) { print "perlmv version $App::perlmv::VERSION\n"; exit 0 }
+    if ($opts{h}) { print <<'USAGE'; exit 0 }
+Rename files using Perl code.
+
+Usage:
+
+ perlmv -h
+
+ perlmv [options] <scriptlet> <file...>
+ perlmv [options] -e <code> <file...>
+
+ perlmv -e <code> -w <name>
+ perlmv -l
+ perlmv -s <name>
+ perlmv -D <name>
+
+Options:
+
+ -c  Only test compile code, do not run it on the arguments
+ -e <CODE> Specify code to rename file (\$_), e.g. 's/\.old\$/\.bak/'
+ -d  Dry-run (implies -v)
+ -f  Only process files, do not process directories
+ -h  Show this help
+ -M <MODE> Specify mode, default is 'rename' (or 'r'). Use 'copy' or
+     'c' to copy instead of rename, 'symlink' or 's' to create a
+     symbolic link, and 'link' or 'l' to create a (hard) link.
+ -o  Overwrite (by default, ".1", ".2", and so on will be appended to
+     avoid overwriting existing files)
+ -p  Create intermediate directories
+ -R  Recursive
+ -r  reverse order of processing (by default order is asciibetically)
+ -S  Do not process symlinks
+ -V  Print version and exit
+ -v  Verbose
+
+ -l  list all scriptlets
+ -s <NAME> Show source code for scriptlet
+ -w <NAME> Write code specified in -e as scriptlet
+ -D <NAME> Delete scriptlet
+USAGE
+
+    my $default_mode =
+        $0 =~ /cp/ ? "copy" :
+        $0 =~ /ln_s/ ? "symlink" :
+        $0 =~ /ln/ ? "link" :
+        "rename";
+    my $pmv = __PACKAGE__->new;
+    $pmv->{dry_run} = $opts{d};
+    $pmv->{verbose} = $opts{v} || $opts{d};
+    $pmv->{reverse_order} = $opts{r};
+    $pmv->{recursive} = $opts{R};
+    $pmv->{process_symlink} = !$opts{S};
+    $pmv->{process_dir} = !$opts{f};
+    $pmv->{overwrite} = $opts{o};
+    $pmv->{mode} = $opts{M} || $default_mode;
+    $pmv->{create_intermediate_dirs} = $opts{p};
+
+    if ($opts{l}) {
+        $pmv->load_scriptlets();
+        for (sort keys %{$pmv->{scriptlets}}) {
+            if ($opts{v}) {
+                print $pmv->format_scriptlet_source($_), "\n";
+            } else {
+                print $_, "\n";
+            }
+        }
+        exit 0;
+    }
+
+    if ($opts{s}) {
+        print $pmv->format_scriptlet_source($opts{s});
+        exit 0;
+    }
+
+    if ($opts{w}) {
+        $pmv->store_scriptlet($opts{w}, $opts{e});
+        exit 0;
+    }
+
+    if ($opts{D}) {
+        $pmv->delete_user_scriptlet($opts{D});
+        exit 0;
+    }
+
+    if ($opts{e}) {
+        $pmv->{code} = $opts{e};
+    } else {
+        die "FATAL: Must specify code (-e) or scriptlet name (first argument)"
+            unless @ARGV;
+        $pmv->{code} = $pmv->load_scriptlet(scalar shift @ARGV);
+    }
+
+    exit 0 if $opts{c};
+
+    die "FATAL: Please specify some files in arguments\n" unless @ARGV;
+
+    my @items = ();
+
+    # do our own globbing in windows, this is convenient
+    if ($^O =~ /win32/i) {
+        for (@ARGV) {
+            if (/[*?{}\[\]]/) { push @items, glob $_ } else { push @items, $_ }
+        }
+    } else {
+        push @items, @ARGV;
+    }
+
+    $pmv->rename(@items);
 }
 
 1;

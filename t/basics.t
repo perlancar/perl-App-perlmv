@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 9;
 use FindBin '$Bin';
 ($Bin) = $Bin =~ /(.+)/;
 
@@ -37,6 +37,14 @@ files_are('automatic .\d+ suffix on conflict', ['a', 'a.1', 'a.2', 'a.3']);
 
 perlmv('-oe', '$_="b"', files());
 files_are('-o (overwrite)', ['b']);
+
+remove_files();
+create_files("a");
+perlmv('-e', '"b/c/d"', files());
+files_are('-p (create intermediate dir) off', ['a']);
+perlmv('-pe', '"b/c/d"', files());
+files_are('-p (create intermediate dir) on (1)', ['b']);
+ok((-f "b/c/d"), '-p (create intermediate dir) on (2)');
 
 chdir "/";
 
