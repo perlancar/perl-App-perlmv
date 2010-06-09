@@ -55,14 +55,12 @@ sub load_scriptlet {
 
 sub load_scriptlets {
     my ($self) = @_;
-    if (!$self->{scriptlets}) {
-        $self->{scriptlets} = $self->find_scriptlets();
-    }
+    $self->{'scriptlets'} ||= $self->find_scriptlets();
 }
 
 sub find_scriptlets {
     my ($self) = @_;
-    my $res = {};
+    my $res    = {};
 
     eval { require App::perlmv::scriptlets::std };
     if (%App::perlmv::scriptlets::std::scriptlets) {
