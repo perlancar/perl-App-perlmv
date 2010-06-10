@@ -8,7 +8,7 @@ use File::Copy;
 use File::Find;
 use File::Path qw(make_path);
 use File::Spec;
-use Getopt::Std;
+use Getopt::Long qw(:config no_ignore_case);
 
 =for Pod::Coverage .+
 
@@ -33,7 +33,7 @@ sub new {
         die "FATAL: Can't determine home directory\n" unless $homedir;
     }
 
-    bless {
+    my $self = {
         dry_run         => 0,
         homedir         => $homedir,
         overwrite       => 0,
@@ -42,7 +42,166 @@ sub new {
         recursive       => 0,
         verbose         => 0,
         mode            => 'rename',
-    }, $class;
+    };
+
+    bless $self, $class;
+
+    return $self;
+}
+
+
+sub parse_args {
+    my $self = shift;
+    # because some platforms don't support ln and ln -s. otherwise i
+    # would just link the 'perlmv' command to 'perlcp', 'perlln',
+    # perlln_s'.
+
+    #getopts('ce:D:dfhlM:opRrSs:Vvw:', \%opts);
+    GetOptions(
+        'c|--compile'       => \$self->{ 'compile'     },
+        'e|--execute=s'     => \$self->{ 'execute'     },
+        'D|--delete=s'      => \$self->{ 'delete'      },
+        'd|--dry-run'       => \$self->{ 'dry_run'     },
+        'f|--files'         => \$self->{ 'files'       },
+        'l|--list'          => \$self->{ 'list'        },
+        'M|--mode=s'        => \$self->{ 'mode'        },
+        'o|--overwrite'     => \$self->{ 'overwrite'   },
+        'p|--parents'       => \$self->{ 'parents'     },
+        'R|--recursive'     => \$self->{ 'recursive'   },
+        'r|--reverse'       => \$self->{ 'reverse'     },
+        'S|--no-symlinks'   => \$self->{ 'no_symlinks' },
+        's|--show=s'        => \$self->{ 'show'        },
+        'v|--verbose'       => \$self->{ 'verbose'     },
+        'w|--write=s'       => \$self->{ 'write'       },
+        'h|--help'          => sub { $self->print_help()         },
+        'V|--version'       => sub { $self->print_version()      },
+        '<>'                => sub { $self->process_extra_args() },
+    ) or $self->print_help();
+}
+
+sub run {
+    my $self = shift;
+
+    $self->parse_args();
+
+    # -m is reserved for file mode
+    my $default_mode =
+        $0 =~ /cp/ ? "copy" :
+        $0 =~ /ln_s/ ? "symlink" :
+        $0 =~ /ln/ ? "link" :
+        "rename";
+    my $pmv = __PACKAGE__->new;
+    $pmv->{dry_run} = $opts{d};
+    $pmv->{verbose} = $opts{v} || $opts{d};
+    $pmv->{reverse_order} = $opts{r};
+    $pmv->{recursive} = $opts{R};
+    $pmv->{process_symlink} = !$opts{S};
+    $pmv->{process_dir} = !$opts{f};
+    $pmv->{overwrite} = $opts{o};
+    $pmv->{mode} = $opts{M} || $default_mode;
+    $pmv->{create_intermediate_dirs} = $opts{p};
+
+    if ($opts{l}) {
+        $pmv->load_scriptlets();
+        for (sort keys %{$pmv->{scriptlets}}) {
+            if ($opts{v}) {
+                print $pmv->format_scriptlet_source($_), "\n";
+            } else {
+                print $_, "\n";
+            }
+        }
+        exit 0;
+    }
+
+    if ($opts{s}) {
+        print $pmv->format_scriptlet_source($opts{s});
+        exit 0;
+    }
+
+    if ($opts{w}) {
+        $pmv->store_scriptlet($opts{w}, $opts{e});
+        exit 0;
+    }
+
+    if ($opts{D}) {
+        $pmv->delete_user_scriptlet($opts{D});
+        exit 0;
+    }
+
+    if ($opts{e}) {
+        $pmv->{code} = $opts{e};
+    } else {
+        die "FATAL: Must specify code (-e) or scriptlet name (first argument)"
+            unless @ARGV;
+        $pmv->{code} = $pmv->load_scriptlet(scalar shift @ARGV);
+    }
+
+    exit 0 if $opts{c};
+
+    die "FATAL: Please specify some files in arguments\n" unless @ARGV;
+
+    my @items = ();
+
+    # do our own globbing in windows, this is convenient
+    if ($^O =~ /win32/i) {
+        for (@ARGV) {
+            if (/[*?{}\[\]]/) { push @items, glob $_ } else { push @items, $_ }
+        }
+    } else {
+        push @items, @ARGV;
+    }
+
+    $pmv->rename(@items);
+}
+
+sub print_version {
+    print "perlmv version $App::perlmv::VERSION\n";
+    exit 0;
+}
+
+sub print_help {
+    my $self = shift;
+    print <<'USAGE';
+Rename files using Perl code.
+
+Usage:
+
+ perlmv -h
+
+ perlmv [options] <scriptlet> <file...>
+ perlmv [options] -e <code> <file...>
+
+ perlmv -e <code> -w <name>
+ perlmv -l
+ perlmv -s <name>
+ perlmv -D <name>
+
+Options:
+
+ -c  Only test compile code, do not run it on the arguments
+ -e <CODE> Specify code to rename file (\$_), e.g. 's/\.old\$/\.bak/'
+ -d  Dry-run (implies -v)
+ -f  Only process files, do not process directories
+ -h  Show this help
+ -M <MODE> Specify mode, default is 'rename' (or 'r'). Use 'copy' or
+     'c' to copy instead of rename, 'symlink' or 's' to create a
+     symbolic link, and 'link' or 'l' to create a (hard) link.
+ -o  Overwrite (by default, ".1", ".2", and so on will be appended to
+     avoid overwriting existing files)
+ -p  Create intermediate directories
+ -R  Recursive
+ -r  reverse order of processing (by default order is asciibetically)
+ -S  Do not process symlinks
+ -V  Print version and exit
+ -v  Verbose
+
+ -l  list all scriptlets
+ -s <NAME> Show source code for scriptlet
+ -w <NAME> Write code specified in -e as scriptlet
+ -D <NAME> Delete scriptlet
+USAGE
+
+    exit 0;
 }
 
 sub load_scriptlet {
