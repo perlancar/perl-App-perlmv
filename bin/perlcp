@@ -4,6 +4,6 @@ use strict;
 use warnings;
 use App::perlmv;
 
-App::perlmv::__big_ugly_wrapper();
+App::perlmv->new->run;
 
 1;
