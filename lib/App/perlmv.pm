@@ -50,7 +50,7 @@ sub new {
 }
 
 
-sub parse_args {
+sub parse_opts {
     my $self = shift;
     # because some platforms don't support ln and ln -s. otherwise i
     # would just link the 'perlmv' command to 'perlcp', 'perlln',
@@ -58,92 +58,86 @@ sub parse_args {
 
     #getopts('ce:D:dfhlM:opRrSs:Vvw:', \%opts);
     GetOptions(
-        'c|--compile'       => \$self->{ 'compile'     },
-        'e|--execute=s'     => \$self->{ 'execute'     },
-        'D|--delete=s'      => \$self->{ 'delete'      },
-        'd|--dry-run'       => \$self->{ 'dry_run'     },
-        'f|--files'         => \$self->{ 'files'       },
-        'l|--list'          => \$self->{ 'list'        },
-        'M|--mode=s'        => \$self->{ 'mode'        },
-        'o|--overwrite'     => \$self->{ 'overwrite'   },
-        'p|--parents'       => \$self->{ 'parents'     },
-        'R|--recursive'     => \$self->{ 'recursive'   },
-        'r|--reverse'       => \$self->{ 'reverse'     },
-        'S|--no-symlinks'   => \$self->{ 'no_symlinks' },
-        's|--show=s'        => \$self->{ 'show'        },
-        'v|--verbose'       => \$self->{ 'verbose'     },
-        'w|--write=s'       => \$self->{ 'write'       },
-        'h|--help'          => sub { $self->print_help()         },
-        'V|--version'       => sub { $self->print_version()      },
-        '<>'                => sub { $self->process_extra_args() },
+        'c|--compile'       => \$self->{ 'compile'       },
+        'e|--execute=s'     => \$self->{ 'execute'       },
+        'D|--delete=s'      => \$self->{ 'delete'        },
+        'd|--dry-run'       => \$self->{ 'dry_run'       },
+        'l|--list'          => \$self->{ 'list'          },
+        'M|--mode=s'        => \$self->{ 'mode'          },
+        'o|--overwrite'     => \$self->{ 'overwrite'     },
+        'p|--parents'       => \$self->{ 'parents'       },
+        'R|--recursive'     => \$self->{ 'recursive'     },
+        'r|--reverse'       => \$self->{ 'reverse_order' },
+        's|--show=s'        => \$self->{ 'show'          },
+        'v|--verbose'       => \$self->{ 'verbose'       },
+        'w|--write=s'       => \$self->{ 'write'         },
+        'f|--files'         => sub { $self->{ 'process_dir'    } = 0 },
+        'S|--no-symlinks'   => sub { $self->{ 'process_symlink'} = 0 },
+        'h|--help'          => sub { $self->print_help()             },
+        'V|--version'       => sub { $self->print_version()          },
+        '<>'                => sub { $self->process_extra_args()     },
     ) or $self->print_help();
 }
 
 sub run {
     my $self = shift;
 
-    $self->parse_args();
+    $self->parse_opts();
 
     # -m is reserved for file mode
     my $default_mode =
-        $0 =~ /cp/ ? "copy" :
-        $0 =~ /ln_s/ ? "symlink" :
-        $0 =~ /ln/ ? "link" :
-        "rename";
-    my $pmv = __PACKAGE__->new;
-    $pmv->{dry_run} = $opts{d};
-    $pmv->{verbose} = $opts{v} || $opts{d};
-    $pmv->{reverse_order} = $opts{r};
-    $pmv->{recursive} = $opts{R};
-    $pmv->{process_symlink} = !$opts{S};
-    $pmv->{process_dir} = !$opts{f};
-    $pmv->{overwrite} = $opts{o};
-    $pmv->{mode} = $opts{M} || $default_mode;
-    $pmv->{create_intermediate_dirs} = $opts{p};
+        $0 =~ /cp/   ? 'copy'    :
+        $0 =~ /ln_s/ ? 'symlink' :
+        $0 =~ /ln/   ? 'link'    :
+        'rename';
 
-    if ($opts{l}) {
-        $pmv->load_scriptlets();
-        for (sort keys %{$pmv->{scriptlets}}) {
-            if ($opts{v}) {
-                print $pmv->format_scriptlet_source($_), "\n";
-            } else {
-                print $_, "\n";
-            }
+    # XXX: rename $pmv to $self
+    $self->{'dry_run'} and $self->{'verbose'}++;
+    $self->{'mode'} ||= $default_mode;
+
+    if ( $self->{'list'} ) {
+        $self->load_scriptlets();
+        foreach my $key ( sort keys %{ $self->{'scriptlets'} } ) {
+            print $self->{'verbose'}                       ?
+                $self->format_scriptlet_source($key), "\n" :
+                "$key\n";
         }
+
         exit 0;
     }
 
-    if ($opts{s}) {
-        print $pmv->format_scriptlet_source($opts{s});
+    if ( $self->{'show'} ) {
+        print $self->format_scriptlet_source( $self->{'show'} );
         exit 0;
     }
 
-    if ($opts{w}) {
-        $pmv->store_scriptlet($opts{w}, $opts{e});
+    if ( $self->{'write'} ) {
+        $self->store_scriptlet( $self->{'write'}, $self->{'execute'} );
         exit 0;
     }
 
-    if ($opts{D}) {
-        $pmv->delete_user_scriptlet($opts{D});
+    if ( $self->{'delete'} ) {
+        $pmv->delete_user_scriptlet( $self->{'delete'} );
         exit 0;
     }
 
-    if ($opts{e}) {
-        $pmv->{code} = $opts{e};
+    if ( $self->{'execute'} ) {
+        # XXX: this can be refactored, no point in two keys for same thing
+        $self->{'code'} = $self->{'execute'};
     } else {
-        die "FATAL: Must specify code (-e) or scriptlet name (first argument)"
+        die 'FATAL: Must specify code (-e) or scriptlet name (first argument)'
             unless @ARGV;
-        $pmv->{code} = $pmv->load_scriptlet(scalar shift @ARGV);
+        $self->{'code'} = $self->load_scriptlet( scalar shift @ARGV );
     }
 
-    exit 0 if $opts{c};
+    exit 0 if $self->{'compile'};
 
     die "FATAL: Please specify some files in arguments\n" unless @ARGV;
 
     my @items = ();
 
     # do our own globbing in windows, this is convenient
-    if ($^O =~ /win32/i) {
+    if ( $^O =~ /win32/i ) {
         for (@ARGV) {
             if (/[*?{}\[\]]/) { push @items, glob $_ } else { push @items, $_ }
         }
@@ -151,7 +145,7 @@ sub run {
         push @items, @ARGV;
     }
 
-    $pmv->rename(@items);
+    $self->rename(@items);
 }
 
 sub print_version {
