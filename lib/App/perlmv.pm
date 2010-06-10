@@ -75,8 +75,25 @@ sub parse_opts {
         'S|no-symlinks'   => sub { $self->{ 'process_symlink'} = 0 },
         'h|help'          => sub { $self->print_help()             },
         'V|version'       => sub { $self->print_version()          },
-        '<>'                => sub { $self->process_extra_args()     },
+        '<>'              => sub { $self->parse_extra_opts()       },
     ) or $self->print_help();
+}
+
+sub parse_extra_opts {
+    my ( $self, @args ) = @_;
+
+    my @items = ();
+
+    # do our own globbing in windows, this is convenient
+    if ( $^O =~ /win32/i ) {
+        for (@args) {
+            if (/[*?{}\[\]]/) { push @items, glob $_ } else { push @items, $_ }
+        }
+    } else {
+        push @items, @args;
+    }
+
+    $self->{'items'} = \@items;
 }
 
 sub run {
@@ -126,26 +143,17 @@ sub run {
         $self->{'code'} = $self->{'execute'};
     } else {
         die 'FATAL: Must specify code (-e) or scriptlet name (first argument)'
-            unless @ARGV;
-        $self->{'code'} = $self->load_scriptlet( scalar shift @ARGV );
+            unless $self->{'items'};
+        use Data::Dumper; warn Dumper $self;
+        $self->{'code'} =
+            $self->load_scriptlet( scalar shift @{ $self->{'items'} } );
     }
 
     exit 0 if $self->{'compile'};
 
-    die "FATAL: Please specify some files in arguments\n" unless @ARGV;
+    die "FATAL: Please specify some files in arguments\n" unless $self->{'items'};
 
-    my @items = ();
-
-    # do our own globbing in windows, this is convenient
-    if ( $^O =~ /win32/i ) {
-        for (@ARGV) {
-            if (/[*?{}\[\]]/) { push @items, glob $_ } else { push @items, $_ }
-        }
-    } else {
-        push @items, @ARGV;
-    }
-
-    $self->rename(@items);
+    $self->rename();
 }
 
 sub print_version {
@@ -420,7 +428,8 @@ sub format_scriptlet_source {
 }
 
 sub rename {
-    my ($self, @items) = @_;
+    my ($self) = @_;
+    my @items  = @{ $self->{'items'} };
 
     $self->compile_code();
     $self->{_exists} = {};
