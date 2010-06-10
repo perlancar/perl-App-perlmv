@@ -8,7 +8,7 @@ use File::Copy;
 use File::Find;
 use File::Path qw(make_path);
 use File::Spec;
-use Getopt::Long qw(:config no_ignore_case);
+use Getopt::Long qw(:config no_ignore_case bundling);
 
 =for Pod::Coverage .+
 
@@ -58,23 +58,23 @@ sub parse_opts {
 
     #getopts('ce:D:dfhlM:opRrSs:Vvw:', \%opts);
     GetOptions(
-        'c|--compile'       => \$self->{ 'compile'       },
-        'e|--execute=s'     => \$self->{ 'execute'       },
-        'D|--delete=s'      => \$self->{ 'delete'        },
-        'd|--dry-run'       => \$self->{ 'dry_run'       },
-        'l|--list'          => \$self->{ 'list'          },
-        'M|--mode=s'        => \$self->{ 'mode'          },
-        'o|--overwrite'     => \$self->{ 'overwrite'     },
-        'p|--parents'       => \$self->{ 'parents'       },
-        'R|--recursive'     => \$self->{ 'recursive'     },
-        'r|--reverse'       => \$self->{ 'reverse_order' },
-        's|--show=s'        => \$self->{ 'show'          },
-        'v|--verbose'       => \$self->{ 'verbose'       },
-        'w|--write=s'       => \$self->{ 'write'         },
-        'f|--files'         => sub { $self->{ 'process_dir'    } = 0 },
-        'S|--no-symlinks'   => sub { $self->{ 'process_symlink'} = 0 },
-        'h|--help'          => sub { $self->print_help()             },
-        'V|--version'       => sub { $self->print_version()          },
+        'c|compile'       => \$self->{ 'compile'       },
+        'e|execute=s'     => \$self->{ 'execute'       },
+        'D|delete=s'      => \$self->{ 'delete'        },
+        'd|dry-run'       => \$self->{ 'dry_run'       },
+        'l|list'          => \$self->{ 'list'          },
+        'M|mode=s'        => \$self->{ 'mode'          },
+        'o|overwrite'     => \$self->{ 'overwrite'     },
+        'p|parents'       => \$self->{ 'parents'       },
+        'R|recursive'     => \$self->{ 'recursive'     },
+        'r|reverse'       => \$self->{ 'reverse_order' },
+        's|show=s'        => \$self->{ 'show'          },
+        'v|verbose'       => \$self->{ 'verbose'       },
+        'w|write=s'       => \$self->{ 'write'         },
+        'f|files'         => sub { $self->{ 'process_dir'    } = 0 },
+        'S|no-symlinks'   => sub { $self->{ 'process_symlink'} = 0 },
+        'h|help'          => sub { $self->print_help()             },
+        'V|version'       => sub { $self->print_version()          },
         '<>'                => sub { $self->process_extra_args()     },
     ) or $self->print_help();
 }
