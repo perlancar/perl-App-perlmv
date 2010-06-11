@@ -41,7 +41,6 @@ sub new {
         process_symlink => 1,
         recursive       => 0,
         verbose         => 0,
-        mode            => 'rename',
     };
 
     bless $self, $class;
