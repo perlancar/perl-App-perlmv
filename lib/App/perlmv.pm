@@ -75,19 +75,20 @@ sub parse_opts {
         'S|no-symlinks'   => sub { $self->{ 'process_symlink'} = 0 },
         'h|help'          => sub { $self->print_help()             },
         'V|version'       => sub { $self->print_version()          },
-        '<>'              => sub { $self->parse_extra_opts()       },
+        '<>'              => sub { $self->parse_extra_opts(@_)     },
     ) or $self->print_help();
 }
 
 sub parse_extra_opts {
     my ( $self, @args ) = @_;
-
     my @items = ();
+    @args = map { "$_" } @args;
 
     # do our own globbing in windows, this is convenient
     if ( $^O =~ /win32/i ) {
         for (@args) {
-            if (/[*?{}\[\]]/) { push @items, glob $_ } else { push @items, $_ }
+            if (/[*?{}\[\]]/) { push @items, glob $_ }
+            else              { push @items, $_      }
         }
     } else {
         push @items, @args;
@@ -144,7 +145,6 @@ sub run {
     } else {
         die 'FATAL: Must specify code (-e) or scriptlet name (first argument)'
             unless $self->{'items'};
-        use Data::Dumper; warn Dumper $self;
         $self->{'code'} =
             $self->load_scriptlet( scalar shift @{ $self->{'items'} } );
     }
