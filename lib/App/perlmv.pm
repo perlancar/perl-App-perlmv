@@ -80,21 +80,15 @@ sub parse_opts {
 }
 
 sub parse_extra_opts {
-    my ( $self, @args ) = @_;
-    my @items = ();
-    @args = map { "$_" } @args;
+    my ( $self, $arg ) = @_;
 
     # do our own globbing in windows, this is convenient
     if ( $^O =~ /win32/i ) {
-        for (@args) {
-            if (/[*?{}\[\]]/) { push @items, glob $_ }
-            else              { push @items, $_      }
-        }
+        if ( $arg =~ /[*?{}\[\]]/ ) { push @{ $self->{'items'} }, glob "$arg" }
+        else { push @{ $self->{'items'} }, "$arg" }
     } else {
-        push @items, @args;
+        push @{ $self->{'items'} }, "$arg";
     }
-
-    $self->{'items'} = \@items;
 }
 
 sub run {
@@ -143,6 +137,7 @@ sub run {
         # XXX: this can be refactored, no point in two keys for same thing
         $self->{'code'} = $self->{'execute'};
     } else {
+        # XXX: this is no longer "first argument", but through -l
         die 'FATAL: Must specify code (-e) or scriptlet name (first argument)'
             unless $self->{'items'};
         $self->{'code'} =
@@ -312,6 +307,7 @@ sub run_code {
     no warnings;
     $App::perlmv::code::TESTING = 0;
     my $orig_ = $_;
+    # XXX: does it really need a package here? Don't think so...
     my $res = eval "package App::perlmv::code; $code";
     die "FATAL: Code doesn't compile: code=$code, errmsg=$@\n" if $@;
     if (defined($res) && length($res) && $_ eq $orig_) { $_ = $res }
@@ -348,7 +344,7 @@ sub process_item {
 
     local $_ = $filename;
     my $old = $filename;
-    $self->run_code($self->{'code'});
+    $self->run_code();
     my $new = $_;
 
     return if abs_path($old) eq abs_path($new);
