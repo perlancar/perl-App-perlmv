@@ -381,7 +381,7 @@ sub process_item {
     unless ($self->{dry_run}) {
         my $res;
 
-        if ($self->{'create_intermediate_dirs'}) {
+        if ($self->{'parents'}) {
             my ($vol, $dir, $file) = File::Spec->splitpath($new);
             unless (-e $dir) {
                 make_path($dir, {error => \my $err});
