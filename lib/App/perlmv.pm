@@ -55,7 +55,6 @@ sub parse_opts {
     # would just link the 'perlmv' command to 'perlcp', 'perlln',
     # perlln_s'.
 
-    #getopts('ce:D:dfhlM:opRrSs:Vvw:', \%opts);
     GetOptions(
         'c|compile'       => \$self->{ 'compile'       },
         'e|execute=s'     => \$self->{ 'execute'       },
