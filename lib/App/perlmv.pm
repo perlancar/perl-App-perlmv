@@ -19,23 +19,29 @@ sub new {
 
     # determine home
     my $homedir;
-    if ($ENV{TESTING_HOME}) {
-        $homedir = $ENV{TESTING_HOME};
+
+    if ( $ENV{'TESTING_HOME'} ) {
+        $homedir = $ENV{'TESTING_HOME'};
     } else {
-        eval { require File::HomeDir; $homedir = File::HomeDir->my_home };
-        if (!$homedir) { $homedir = $ENV{HOME} }
+        eval {
+            require File::HomeDir;
+            $homedir = File::HomeDir->my_home;
+        };
+
+        $homedir ||= $ENV{'HOME'};
+
         die "FATAL: Can't determine home directory\n" unless $homedir;
     }
 
     bless {
-        dry_run => 0,
-        homedir => $homedir,
-        overwrite => 0,
-        process_dir => 1,
+        dry_run         => 0,
+        homedir         => $homedir,
+        overwrite       => 0,
+        process_dir     => 1,
         process_symlink => 1,
-        recursive => 0,
-        verbose => 0,
-        mode => 'rename',
+        recursive       => 0,
+        verbose         => 0,
+        mode            => 'rename',
     }, $class;
 }
 
@@ -49,14 +55,12 @@ sub load_scriptlet {
 
 sub load_scriptlets {
     my ($self) = @_;
-    if (!$self->{scriptlets}) {
-        $self->{scriptlets} = $self->find_scriptlets();
-    }
+    $self->{'scriptlets'} ||= $self->find_scriptlets();
 }
 
 sub find_scriptlets {
     my ($self) = @_;
-    my $res = {};
+    my $res    = {};
 
     eval { require App::perlmv::scriptlets::std };
     if (%App::perlmv::scriptlets::std::scriptlets) {
