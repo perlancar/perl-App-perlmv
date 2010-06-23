@@ -56,8 +56,8 @@ sub parse_opts {
     # perlln_s'.
 
     GetOptions(
-        'c|compile'       => \$self->{ 'compile'       },
-        'e|eval=s'        => \$self->{ 'code'          },
+        'c|check'         => \$self->{ 'check'         },
+        'e|execute=s'     => \$self->{ 'code'          },
         'D|delete=s'      => \$self->{ 'delete'        },
         'd|dry-run'       => \$self->{ 'dry_run'       },
         'l|list'          => \$self->{ 'list'          },
@@ -130,14 +130,16 @@ sub run {
         exit 0;
     }
 
-    die 'FATAL: Must specify code (-e) or scriptlet name (first argument)'
+    unless ($self->{'code'}) {
+        die 'FATAL: Must specify code (-e) or scriptlet name (first argument)'
+            unless $self->{'items'};
+        $self->{'code'} =
+            $self->load_scriptlet( scalar shift @{ $self->{'items'} } );
+    }
+    exit 0 if $self->{'check'};
+
+    die "FATAL: Please specify some files in arguments\n"
         unless $self->{'items'};
-    $self->{'code'} =
-        $self->load_scriptlet( scalar shift @{ $self->{'items'} } );
-
-    exit 0 if $self->{'compile'};
-
-    die "FATAL: Please specify some files in arguments\n" unless $self->{'items'};
 
     $self->rename();
 }
@@ -167,7 +169,7 @@ Usage:
 Options:
 
  -c  (--compile) Only test compile code, do not run it on the arguments
- -e <CODE> (--eval) Specify code to rename file (\$_), e.g.
+ -e <CODE> (--execute) Specify code to rename file (\$_), e.g.
      's/\.old\$/\.bak/'
  -D <NAME> (--delete) Delete scriptlet
  -d  (--dry-run) Dry-run (implies -v)
@@ -417,8 +419,13 @@ sub format_scriptlet_source {
 }
 
 sub rename {
-    my ($self) = @_;
-    my @items  = @{ $self->{'items'} };
+    my ($self, @args) = @_;
+    my @items;
+    if (@args) {
+        @items = @args;
+    } else {
+        @items  = @{ $self->{'items'} // [] };
+    }
 
     $self->compile_code();
     $self->{_exists} = {};

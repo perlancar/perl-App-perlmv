@@ -10,7 +10,7 @@ BEGIN {
 
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More tests => 8;
 use FindBin '$Bin';
 ($Bin) = $Bin =~ /(.+)/;
 
@@ -20,13 +20,11 @@ our $Dir;
 require "$Bin/testlib.pl";
 prepare_for_testing();
 
-create_files("1", "2", "3");
+test_perlmv([1, 2, 3], {code=>'$_++', mode=>'s',
+                        before_rmtree=>sub {
+                            ok((-l "2.1"), "symlink created for 1");
+                            ok((-l "3.1"), "symlink created for 2");
+                            ok((-l "4")  , "symlink created for 3");
+                        }}, ["1", "2", "2.1", "3", "3.1", "4"], 'normal');
 
-perlln_s('-e', '$_++', files());
-files_are('ln_s 1', ['1', '2', '2.1', '3', '3.1', '4']);
-
-ok((-l "2.1"), "symlink created for 1");
-ok((-l "3.1"), "symlink created for 2");
-ok((-l "4")  , "symlink created for 3");
-
-chdir "/";
+end_testing();
