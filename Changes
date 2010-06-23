@@ -1,5 +1,17 @@
 Revision history for App-perlmv
 
+0.31     2010-06-23
+
+         Now requires Perl 5.10 (sorry guys).
+
+         Switch to Getopt::Long, add long options (SawyerX++).
+
+         Refactor code to be more OO (SawyerX++).
+
+         Refactor tests (multitude fails on various platforms reported
+         by cpantesters).
+
+
 0.30     2010-05-21
 
          Add option: -p (create intermediate dirs).
