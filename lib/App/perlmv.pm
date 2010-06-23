@@ -57,7 +57,7 @@ sub parse_opts {
 
     GetOptions(
         'c|compile'       => \$self->{ 'compile'       },
-        'e|execute=s'     => \$self->{ 'execute'       },
+        'e|eval=s'        => \$self->{ 'code'          },
         'D|delete=s'      => \$self->{ 'delete'        },
         'd|dry-run'       => \$self->{ 'dry_run'       },
         'l|list'          => \$self->{ 'list'          },
@@ -101,7 +101,6 @@ sub run {
         $0 =~ /ln/   ? 'link'    :
         'rename';
 
-    # XXX: rename $pmv to $self
     $self->{'dry_run'} and $self->{'verbose'}++;
     $self->{'mode'} ||= $default_mode;
 
@@ -122,7 +121,7 @@ sub run {
     }
 
     if ( $self->{'write'} ) {
-        $self->store_scriptlet( $self->{'write'}, $self->{'execute'} );
+        $self->store_scriptlet( $self->{'write'}, $self->{'code'} );
         exit 0;
     }
 
@@ -131,16 +130,10 @@ sub run {
         exit 0;
     }
 
-    if ( $self->{'execute'} ) {
-        # XXX: this can be refactored, no point in two keys for same thing
-        $self->{'code'} = $self->{'execute'};
-    } else {
-        # XXX: this is no longer "first argument", but through -l
-        die 'FATAL: Must specify code (-e) or scriptlet name (first argument)'
-            unless $self->{'items'};
-        $self->{'code'} =
-            $self->load_scriptlet( scalar shift @{ $self->{'items'} } );
-    }
+    die 'FATAL: Must specify code (-e) or scriptlet name (first argument)'
+        unless $self->{'items'};
+    $self->{'code'} =
+        $self->load_scriptlet( scalar shift @{ $self->{'items'} } );
 
     exit 0 if $self->{'compile'};
 
@@ -174,7 +167,7 @@ Usage:
 Options:
 
  -c  (--compile) Only test compile code, do not run it on the arguments
- -e <CODE> (--execute) Specify code to rename file (\$_), e.g.
+ -e <CODE> (--eval) Specify code to rename file (\$_), e.g.
      's/\.old\$/\.bak/'
  -D <NAME> (--delete) Delete scriptlet
  -d  (--dry-run) Dry-run (implies -v)
@@ -267,21 +260,21 @@ sub store_scriptlet {
     die "FATAL: Invalid scriptlet name `$name`\n"
         unless $self->valid_scriptlet_name($name);
     die "FATAL: Code not specified\n" unless $code;
-    unless (-d "$self->{homedir}/.perlmv") {
-        mkdir "$self->{homedir}/.perlmv" or
-            die "FATAL: Can't mkdir `$self->{homedir}/.perlmv`: $!\n";
+    my $path = "$self->{homedir}/.perlmv";
+    unless (-d $path) {
+        mkdir $path or die "FATAL: Can't mkdir `$path`: $!\n";
     }
-    unless (-d "$self->{homedir}/.perlmv/scriptlets") {
-        mkdir "$self->{homedir}/.perlmv/scriptlets" or
-            die "FATAL: Can't mkdir `$self->{homedir}/.perlmv/scriptlets`: ".
-                "$!\n";
+    $path .= "/scriptlets";
+    unless (-d $path) {
+        mkdir $path or die "FATAL: Can't mkdir `$path: $!\n";
     }
-    # XXX warn existing file, unless -o
-    open my($fh), ">$self->{homedir}/.perlmv/scriptlets/$name";
+    $path .= "/$name";
+    unless ((-e $path) && !$self->{'overwrite'}) {
+        mkdir $path or die "FATAL: Can't overwrite `$path (use -o)\n";
+    }
+    open my($fh), ">", $path;
     print $fh $code;
-    close $fh or
-        die "FATAL: Can't write to $self->{homedir}/.perlmv/scriptlets/$name: ".
-            "$!\n";
+    close $fh or die "FATAL: Can't write to $path: $!\n";
 }
 
 sub delete_user_scriptlet {
@@ -307,7 +300,7 @@ sub run_code {
     no warnings;
     $App::perlmv::code::TESTING = 0;
     my $orig_ = $_;
-    # XXX: does it really need a package here? Don't think so...
+    # It does need a package declaration to run it in App::perlmv::code
     my $res = eval "package App::perlmv::code; $code";
     die "FATAL: Code doesn't compile: code=$code, errmsg=$@\n" if $@;
     if (defined($res) && length($res) && $_ eq $orig_) { $_ = $res }
