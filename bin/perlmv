@@ -6,7 +6,9 @@ use FindBin '$Bin';
 use lib "$Bin/../lib";
 use App::perlmv;
 
-App::perlmv->new->run;
+my $pmv = App::perlmv->new;
+$pmv->{ 'mode' } = 'rename';
+$pmv->run;
 
 1;
 __END__

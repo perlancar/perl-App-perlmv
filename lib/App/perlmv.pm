@@ -51,9 +51,6 @@ sub new {
 
 sub parse_opts {
     my $self = shift;
-    # because some platforms don't support ln and ln -s. otherwise i
-    # would just link the 'perlmv' command to 'perlcp', 'perlln',
-    # perlln_s'.
 
     GetOptions(
         'c|check'         => \$self->{ 'check'         },
@@ -96,9 +93,9 @@ sub run {
 
     # -m is reserved for file mode
     my $default_mode =
-        $0 =~ /cp/   ? 'copy'    :
-        $0 =~ /ln_s/ ? 'symlink' :
-        $0 =~ /ln/   ? 'link'    :
+        $0 =~ /perlcp/   ? 'copy'    :
+        $0 =~ /perlln_s/ ? 'symlink' :
+        $0 =~ /perlln/   ? 'link'    :
         'rename';
 
     $self->{'dry_run'} and $self->{'verbose'}++;
