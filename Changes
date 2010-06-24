@@ -1,5 +1,10 @@
 Revision history for App-perlmv
 
+0.32     2010-06-24
+
+         Fix failing tests on *cp*antesters machines.
+
+
 0.31     2010-06-23
 
          Now requires Perl 5.10 (sorry guys).
