@@ -1,5 +1,10 @@
 Revision history for App-perlmv
 
+0.33     2010-06-29
+
+         Require Test::Exception [reported by cpantesters]
+
+
 0.32     2010-06-24
 
          Fix failing tests on *cp*antesters machines.
