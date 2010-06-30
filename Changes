@@ -1,5 +1,12 @@
 Revision history for App-perlmv
 
+0.34     2010-06-30
+
+         Add test for each included scriptlet.
+
+         Provide $FILES (arrayref) for code.
+
+
 0.33     2010-06-29
 
          Require Test::Exception [reported by cpantesters]

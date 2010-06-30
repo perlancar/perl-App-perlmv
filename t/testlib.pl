@@ -118,12 +118,17 @@ sub files {
 
 sub files_are {
     my ($files, $test_name) = @_;
-    $files = "[" . join(", ", @$files) . "]";
-    my $rfiles = "[" . join(", ", files()) . "]";
-    # compare as string, e.g. "[1, 2, 3]" vs "[1, 2, 3]" so
-    # differences are clearly shown in test output (instead of
-    # is_deeply output, which i'm not particularly fond of)
-    is($rfiles, $files, $test_name);
+    my @rfiles = files();
+    my $rfiles = "[" . join(", ", @rfiles) . "]";
+    if (ref($files) eq 'CODE') {
+        ok($files->(\@rfiles), $test_name);
+    } else {
+        $files = "[" . join(", ", @$files) . "]";
+        # compare as string, e.g. "[1, 2, 3]" vs "[1, 2, 3]" so
+        # differences are clearly shown in test output (instead of
+        # is_deeply output, which i'm not particularly fond of)
+        is($rfiles, $files, $test_name);
+    }
 }
 
 1;
