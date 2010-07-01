@@ -287,9 +287,21 @@ sub compile_code {
     no strict;
     no warnings;
     local $_ = "-TEST";
-    $App::perlmv::code::TESTING = 1;
+    local $App::perlmv::code::TESTING = 1;
+    local $App::perlmv::code::COMPILING = 1;
     eval "package App::perlmv::code; $code";
     die "FATAL: Code doesn't compile: code=$code, errmsg=$@\n" if $@;
+}
+
+sub run_code_for_cleaning {
+    my ($self) = @_;
+    my $code = $self->{'code'};
+    no strict;
+    no warnings;
+    local $_ = "-CLEAN";
+    local $App::perlmv::code::CLEANING = 1;
+    eval "package App::perlmv::code; $code";
+    die "FATAL: Code doesn't run (cleaning): code=$code, errmsg=$@\n" if $@;
 }
 
 sub run_code {
@@ -297,7 +309,8 @@ sub run_code {
     my $code = $self->{'code'};
     no strict;
     no warnings;
-    $App::perlmv::code::TESTING = 0;
+    local $App::perlmv::code::TESTING = 0;
+    local $App::perlmv::code::COMPILING = 0;
     my $orig_ = $_;
     # It does need a package declaration to run it in App::perlmv::code
     my $res = eval "package App::perlmv::code; $code";
@@ -425,7 +438,13 @@ sub rename {
         @items  = @{ $self->{'items'} // [] };
     }
 
-    $self->compile_code();
+    # for cleaning between run
+    if ($self->{_compiled}) {
+        $self->run_code_for_cleaning();
+    } else {
+        $self->compile_code();
+        $self->{_compiled} = 1;
+    }
     $self->{_exists} = {};
     $self->process_items(@items);
 }

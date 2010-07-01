@@ -1,5 +1,14 @@
 Revision history for App-perlmv
 
+0.36     2010-07-02
+
+         Introduce $COMPILING as alias for $COMPILING.
+
+         Introduce $CLEANING for running code between run.
+
+         Fix scriptlet: to-number-ext (still used @ARGV).
+
+
 0.35     2010-07-01
 
          Add scriptlet: trim.
