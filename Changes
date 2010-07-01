@@ -1,5 +1,12 @@
 Revision history for App-perlmv
 
+0.35     2010-07-01
+
+         Add scriptlet: trim.
+
+         Add scriptlet: dedup-space.
+
+
 0.34     2010-06-30
 
          Add test for each included scriptlet.

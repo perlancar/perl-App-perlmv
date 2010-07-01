@@ -112,7 +112,7 @@ sub remove_files {
 }
 sub files {
     my @res = sort { $a cmp $b } map { lc } <*>;
-    #print "DEBUG: files() = ", join(", ", @res), "\n";
+    print "#DEBUG: files() = ", join(", ", map {"'$_'"} @res), "\n";
     @res;
 }
 

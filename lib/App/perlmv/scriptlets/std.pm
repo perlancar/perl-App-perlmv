@@ -7,33 +7,30 @@ package App::perlmv::scriptlets::std;
 
 our %scriptlets;
 
-=head2 to-number-ext
+=head2 dedup-space
 
-Rename files into numbers. Preserve extensions. Ex: (file1.txt,
-foo.jpg, quux.mpg) -> (1.txt, 2.jpg, 3.mpg)
+Replace multiple spaces into a single space, example (<space>
+signifies actual space): "1<space><space>2.txt " -> "1<space>2.txt"
 
 =cut
 
-$scriptlets{'to-number-ext'} = <<'EOT';
-### Summary: Rename files into numbers. Preserve extensions. Ex: (file1.txt, foo.jpg, quux.mpg) -> (1.txt, 2.jpg, 3.mpg)
-$i||=0; $i++ unless $TESTING;
-if (/.+\.(.+)/) {$ext=$1} else {$ext=undef}
-$ndig = @ARGV >= 1000 ? 4 : @ARGV >= 100 ? 3 : @ARGV >= 10 ? 2 : 1;
-sprintf "%0${ndig}d%s", $i, (defined($ext) ? ".$ext" : "")
+$scriptlets{'dedup-space'} = <<'EOT';
+### Summary: Replace multiple spaces into a single space, example: "1  2.txt " -> "1 2.txt"
+s/\s{2,}/ /g; $_
 EOT
 
-=head2 to-timestamp-ext
+=head2 pinyin
 
-Rename files into timestamp. Preserve extensions. Ex: file1.txt ->
-2010-05-13-10_43_49.txt
+Rename Chinese characters in filename into their pinyin. Requires
+L<Lingua::Han::Pinyin>.
 
 =cut
 
-$scriptlets{'to-timestamp-ext'} = <<'EOT';
-### Summary: Rename files into timestamp. Preserve extensions. Ex: file1.txt -> 2010-05-13-10_43_49.txt
-use POSIX; /.+\.(.+)/; $ext=$1;
-@st = lstat $_;
-POSIX::strftime("%Y-%m-%d-%H_%M_%S", localtime $st[9]).(defined($ext) ? ".$ext" : "")
+$scriptlets{'pinyin'} = <<'EOT';
+### Summary: Rename Chinese characters in filename into their pinyin
+### Requires: Lingua::Han::Pinyin
+use Lingua::Han::PinYin;
+$h||=Lingua::Han::PinYin->new; $h->han2pinyin($_)
 EOT
 
 =head2 remove-common-prefix
@@ -78,18 +75,45 @@ s/\Q$COMMON_SUFFIX\E$/$EXT/;
 $_
 EOT
 
-=head2 pinyin
+=head2 to-number-ext
 
-Rename Chinese characters in filename into their pinyin. Requires
-L<Lingua::Han::Pinyin>.
+Rename files into numbers. Preserve extensions. Ex: (file1.txt,
+foo.jpg, quux.mpg) -> (1.txt, 2.jpg, 3.mpg)
 
 =cut
 
-$scriptlets{'pinyin'} = <<'EOT';
-### Summary: Rename Chinese characters in filename into their pinyin
-### Requires: Lingua::Han::Pinyin
-use Lingua::Han::PinYin;
-$h||=Lingua::Han::PinYin->new; $h->han2pinyin($_)
+$scriptlets{'to-number-ext'} = <<'EOT';
+### Summary: Rename files into numbers. Preserve extensions. Ex: (file1.txt, foo.jpg, quux.mpg) -> (1.txt, 2.jpg, 3.mpg)
+$i||=0; $i++ unless $TESTING;
+if (/.+\.(.+)/) {$ext=$1} else {$ext=undef}
+$ndig = @ARGV >= 1000 ? 4 : @ARGV >= 100 ? 3 : @ARGV >= 10 ? 2 : 1;
+sprintf "%0${ndig}d%s", $i, (defined($ext) ? ".$ext" : "")
+EOT
+
+=head2 to-timestamp-ext
+
+Rename files into timestamp. Preserve extensions. Ex: file1.txt ->
+2010-05-13-10_43_49.txt
+
+=cut
+
+$scriptlets{'to-timestamp-ext'} = <<'EOT';
+### Summary: Rename files into timestamp. Preserve extensions. Ex: file1.txt -> 2010-05-13-10_43_49.txt
+use POSIX; /.+\.(.+)/; $ext=$1;
+@st = lstat $_;
+POSIX::strftime("%Y-%m-%d-%H_%M_%S", localtime $st[9]).(defined($ext) ? ".$ext" : "")
+EOT
+
+=head2 trim
+
+Remove leading and trailing blanks, example: " abc def .txt " -> "abc
+def.txt"
+
+=cut
+
+$scriptlets{'trim'} = <<'EOT';
+### Summary: Remove leading and trailing blanks, example: " abc def .txt " -> "abc def.txt"
+s/^\s+//; s/\s+(\.\w{1,8})?$/$1/; $_
 EOT
 
 =head2 unaccent
