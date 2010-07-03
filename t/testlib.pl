@@ -93,6 +93,10 @@ sub run_perlmv {
         print "#DEBUG: {", join(", ", map {"$_=>$opts->{$_}"} sort keys %$opts), "} rename(", join(", ", @$files), ")\n";
         if ($opts->{compile}) {
             $pmv->compile_code;
+        } elsif ($opts->{write}) {
+            $pmv->store_scriptlet($opts->{write}, $opts->{code});
+        } elsif ($opts->{delete}) {
+            $pmv->delete_user_scriptlet($opts->{delete});
         } else {
             $pmv->rename(@$files);
         }
