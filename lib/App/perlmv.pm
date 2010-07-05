@@ -355,22 +355,11 @@ sub process_item {
     $self->run_code();
     my $new = $_;
 
-    return if abs_path($old) eq abs_path($new);
+    my $aold = abs_path($old);
+    my $anew = abs_path($new);
+    $self->{_exists}{$aold}++ if (-e $aold);
+    return if $aold eq $anew;
 
-    my $cwd = getcwd();
-    my $orig_new = $new;
-    unless ($self->{'overwrite'}) {
-        my $i = 1;
-        while (1) {
-            if ((-e $new) || exists $self->{_exists}{"$cwd/$new"}) {
-                $new = "$orig_new.$i";
-                $i++;
-            } else {
-                last;
-            }
-        }
-        $self->{_exists}{"$cwd/$new"}++;
-    }
     my $action;
     if (!defined($self->{mode}) || $self->{mode} =~ /^(rename|r)$/) {
         $action = "rename";
@@ -384,6 +373,22 @@ sub process_item {
         die "Unknown mode $self->{mode}, please use one of: ".
             "rename (r), copy (c), symlink (s), or link (l).";
     }
+
+    my $orig_new = $new;
+    unless ($self->{'overwrite'}) {
+        my $i = 1;
+        while (1) {
+            if ((-e $new) || exists $self->{_exists}{$anew}) {
+                $new = "$orig_new.$i";
+                $anew = abs_path($new);
+                $i++;
+            } else {
+                last;
+            }
+        }
+    }
+    $self->{_exists}{$anew}++;
+    delete $self->{_exists}{$aold} if $action eq 'rename';
     print "DRYRUN: " if $self->{dry_run};
     print "$action `$old` -> `$new`\n" if $self->{verbose};
     unless ($self->{dry_run}) {
