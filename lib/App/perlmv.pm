@@ -213,14 +213,14 @@ sub find_scriptlets {
     eval { require App::perlmv::scriptlets::std };
     if (%App::perlmv::scriptlets::std::scriptlets) {
         $res->{$_} = { code => $App::perlmv::scriptlets::std::scriptlets{$_},
-                       from => "App::perlmv::scriptlets::std.pm" }
+                       from => "App::perlmv::scriptlets::std" }
             for keys %App::perlmv::scriptlets::std::scriptlets;
     }
 
     eval { require App::perlmv::scriptlets };
     if (%App::perlmv::scriptlets::scriptlets) {
         $res->{$_} = { code => $App::perlmv::scriptlets::scriptlets{$_},
-                       from => "App::perlmv::scriptlets.pm" }
+                       from => "App::perlmv::scriptlets" }
             for keys %App::perlmv::scriptlets::scriptlets;
     }
 
