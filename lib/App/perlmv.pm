@@ -171,22 +171,20 @@ Usage:
 Options:
 
  -c  (--compile) Only test compile code, do not run it on the arguments
- -e <CODE> (--execute) Specify code to rename file (\$_), e.g.
-     's/\.old\$/\.bak/'
+ -e <CODE> (--execute) Specify code to rename file (\$_), e.g. 's/\.old\$/\.bak/'
  -D <NAME> (--delete) Delete scriptlet
  -d  (--dry-run) Dry-run (implies -v)
  -f  (--files) Only process files, do not process directories
  -h  (--help) Show this help
  -l  (--list) list all scriptlets
- -M <MODE> (--mode) Specify mode, default is 'rename' (or 'r'). Use
-     'copy' or 'c' to copy instead of rename, 'symlink' or 's' to create
-     a symbolic link, and 'link' or 'l' to create a (hard) link.
- -o  (--overwrite) Overwrite (by default, ".1", ".2", and so on will be
-     appended to avoid overwriting existing files)
+ -M <MODE> (--mode) Specify mode, default is 'rename' (or 'r'). Use 'copy' or 'c'
+     to copy instead of rename, 'symlink' or 's' to create a symbolic link, and
+     'link' or 'l' to create a (hard) link.
+ -o  (--overwrite) Overwrite (by default, ".1", ".2", and so on will be appended
+     to avoid overwriting existing files)
  -p  (--parents) Create intermediate directories
  -R  (--recursive) Recursive
- -r  (--reverse) reverse order of processing (by default order is
-     asciibetically)
+ -r  (--reverse) reverse order of processing (by default order is asciibetically)
  -S  (--no-symlinks) Do not process symlinks
  -s <NAME> (--show) Show source code for scriptlet
  -V  (--version) Print version and exit

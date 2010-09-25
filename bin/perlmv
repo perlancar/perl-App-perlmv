@@ -36,14 +36,14 @@ Usage:
  $ ls
  A.txt B1 c2.txt D3.pl D4.pl
 
-Rename files with prewritten scriptlet (B<ls>) and show (B<-v>) each
-file as it is being renamed.
+Rename files with prewritten scriptlet (B<ls>) and show (B<-v>) each file as it
+is being renamed.
 
  $ perlmv -v lc *.txt
  `A.txt` -> `a.txt`
 
-Specify script in command line (B<-e>) but do not actually rename
-files (B<-d>, dry-run mode):
+Specify script in command line (B<-e>) but do not actually rename files (B<-d>,
+dry-run mode):
 
  $ perlmv -de 's/\d+//g' *
  `B1` -> `B`
@@ -77,41 +77,42 @@ Remove scriptlet:
 
 =head1 DESCRIPTION
 
-Perlmv lets you rename files using Perl code. All the Perl code needs
-to do is modify the filename in C<$_> and perlmv will do the rest
-(actual renaming, recursive renaming, handling filename conflicts,
-dry-run mode, etc.).
+Perlmv lets you rename files using Perl code. All the Perl code needs to do is
+modify the filename in C<$_> and perlmv will do the rest (actual renaming,
+recursive renaming, handling filename conflicts, dry-run mode, etc.).
 
-Perl code will first be run (eval-ed) once at the beginning for
-testing, with C<-TEST> as the filename in C<$_> (and C<$TESTING> will
-be defined). Perl code is not run under strict/warnings. Perl code is
-run under C<App::perlmv::code> namespace.
+Perl code will first be run (eval-ed) once at the beginning for testing, with
+C<-TEST> as the filename in C<$_> (and C<$TESTING> will be set to true). Perl
+code is not run under strict/warnings. Perl code is run under
+C<App::perlmv::code> namespace.
 
-Perl code can be specified directly from the command line (using
-B<-e>), or by name in C<~/.perlmv/scriptlets/NAME>, or in
-C</usr/share/perlmv/scriptlets/>, or in C<%scriptlets> in
-L<App::perlmv::scriptlets>, or in C<%scriptlets> in
+When using the L<App::perlmv> library, there is also the the so-called cleaning
+phase (in which Perl code will be run with $CLEANING set to true) that can be
+used for cleaning purposes in between runs (call to rename()). This is however
+irrelevant to B<perlmv> command as B<perlmv> only calls rename() once.
+
+Perl code can be specified directly from the command line (using B<-e>), or by
+name in C<~/.perlmv/scriptlets/NAME>, or in C</usr/share/perlmv/scriptlets/>, or
+in C<%scriptlets> in L<App::perlmv::scriptlets>, or in C<%scriptlets> in
 L<App::perlmv::scriptlets::std>.
 
 =head1 OPTIONS
 
  -c  (--compile) Only test compile code, do not run it on the arguments
- -e <CODE> (--execute) Specify code to rename file (\$_), e.g.
-     's/\.old\$/\.bak/'
+ -e <CODE> (--execute) Specify code to rename file (\$_), e.g. 's/\.old\$/\.bak/'
  -D <NAME> (--delete) Delete scriptlet
  -d  (--dry-run) Dry-run (implies -v)
  -f  (--files) Only process files, do not process directories
  -h  (--help) Show this help
  -l  (--list) list all scriptlets
- -M <MODE> (--mode) Specify mode, default is 'rename' (or 'r'). Use
-     'copy' or 'c' to copy instead of rename, 'symlink' or 's' to create
-     a symbolic link, and 'link' or 'l' to create a (hard) link.
- -o  (--overwrite) Overwrite (by default, ".1", ".2", and so on will be
-     appended to avoid overwriting existing files)
+ -M <MODE> (--mode) Specify mode, default is 'rename' (or 'r'). Use 'copy' or 'c'
+     to copy instead of rename, 'symlink' or 's' to create a symbolic link, and
+     'link' or 'l' to create a (hard) link.
+ -o  (--overwrite) Overwrite (by default, ".1", ".2", and so on will be appended
+     to avoid overwriting existing files)
  -p  (--parents) Create intermediate directories
  -R  (--recursive) Recursive
- -r  (--reverse) reverse order of processing (by default order is
-     asciibetically)
+ -r  (--reverse) reverse order of processing (by default order is asciibetically)
  -S  (--no-symlinks) Do not process symlinks
  -s <NAME> (--show) Show source code for scriptlet
  -V  (--version) Print version and exit
@@ -122,28 +123,26 @@ L<App::perlmv::scriptlets::std>.
 
 =head2 Why should I use perlmv? There is prename (File::Rename) already?
 
-Yes, there is a very similar script called B<prename> (also accessible
-via B<rename> in Debian) which comes with Perl. This script reinvents
-prename and offers more features, e.g.: automatic renaming in case of
-conflicts, recursive mode, and saving and loading scriptlets.
+Yes, there is a very similar script called B<prename> (also accessible via
+B<rename> in Debian) which comes with Perl. This script reinvents prename and
+offers more features, e.g.: automatic renaming in case of conflicts, recursive
+mode, and saving and loading scriptlets.
 
 =head2 And there is also pmv (File::PerlMove)!
 
-Okay, you got me. I didn't do my homework. The "rename files using
-Perl code/expression" is pretty obvious and has surely come up on
-other CPAN authors' minds. To be honest, this is a script which I
-wrote years ago (at least in 2003, or earlier) and have been using for
-years, personally. Admittedly I uploaded this script to CPAN without
-careful checking of existing solutions on CPAN. But then, lots of
-other CPAN modules are also overlapping in functionality with one
+Okay, you got me. I didn't do my homework. The "rename files using Perl
+code/expression" is pretty obvious and has surely come up on other CPAN authors'
+minds. To be honest, this is a script which I wrote years ago (at least in 2003,
+or earlier) and have been using for years, personally. Admittedly I uploaded this
+script to CPAN without careful checking of existing solutions on CPAN. But then,
+lots of other CPAN modules are also overlapping in functionality with one
 another.
 
-Anyway, I plan to improve perlmv as I see fit, mainly for my own
-needs. I plan to borrow some features from prename/pmv, and welcome
-them borrowing features from perlmv. I welcome patches. And I am
-willing to submit patches to prename/pmv after some discussions with
-the respective authors. And lastly, I am also open to the idea of
-merging perlmv to either pername/pmv, if I can get all the features I
+Anyway, I plan to improve perlmv as I see fit, mainly for my own needs. I plan to
+borrow some features from prename/pmv, and welcome them borrowing features from
+perlmv. I welcome patches. And I am willing to submit patches to prename/pmv
+after some discussions with the respective authors. And lastly, I am also open to
+the idea of merging perlmv to either pername/pmv, if I can get all the features I
 love in perlmv into those projects.
 
 =head1 BUGS/TODOS
