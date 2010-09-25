@@ -10,6 +10,11 @@ use File::Path qw(make_path);
 use File::Spec;
 use Getopt::Long qw(:config no_ignore_case bundling);
 
+=head1 DESCRIPTION
+
+This application is used via the B<perlmv> command. See L<perlmv> for more
+documentation.
+
 =for Pod::Coverage .+
 
 =cut
@@ -455,5 +460,9 @@ sub rename {
     $self->{_exists} = {};
     $self->process_items(@items);
 }
+
+=head1 SEE ALSO
+
+L<perlmv>
 
 1;
