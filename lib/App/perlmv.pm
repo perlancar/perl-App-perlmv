@@ -127,7 +127,7 @@ sub run {
         exit 0;
     }
 
-    unless ($self->{'code'}) {
+    unless (defined $self->{'code'}) {
         die 'FATAL: Must specify code (-e) or scriptlet name (first argument)'
             unless $self->{'items'};
         $self->{'code'} =
