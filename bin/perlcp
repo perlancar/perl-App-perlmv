@@ -14,3 +14,17 @@ $pmv->{ 'mode' } = 'copy';
 $pmv->run;
 
 1;
+__END__
+=head1 NAME
+
+perlcp - Copy files using Perl code
+
+=head1 DESCRIPTION
+
+See L<perlmv> for more documentation.
+
+=head1 SEE ALSO
+
+L<perlmv>
+
+=cut
