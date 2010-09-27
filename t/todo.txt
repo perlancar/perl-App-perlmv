@@ -1,5 +1,5 @@
+- fix recursive test (-R)
 - other options
-  + recursive (-R)
   + files (-f)
   + no-symlinks (-S)
 - autoglobbing in windows

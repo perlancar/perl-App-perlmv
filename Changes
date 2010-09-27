@@ -1,5 +1,21 @@
 Revision history for App-perlmv
 
+0.38     2010-09-27
+
+         Multiple scriptlets and/or command-line code can now be specified, a la
+         piping.
+
+         INCOMPATIBLE: -e is now --eval instead of --execute. New -x option is
+         now --execute.
+
+         Some fixes in dryrun handling.
+
+         Allow -e '' (previous version would wrongly assume next argument is
+         scriptlet).
+
+         Add more documentation and examples.
+
+
 0.37     2010-07-03
 
          Fix bug: store_scriptlets was broken (Thanks Kurt vom Walde).

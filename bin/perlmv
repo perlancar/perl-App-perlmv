@@ -24,20 +24,38 @@ perlmv - Rename files using Perl code
 
 Usage:
 
+ # Show help
  perlmv -h
 
+ # Execute a single scriptlet
  perlmv [options] <scriptlet> <file...>
+
+ # Execute code from command line
  perlmv [options] -e <code> <file...>
 
+ # Execute multiple scriptlets/command-line codes
+ perlmv [options] [ -x <scriptlet> | -e <code> ]+ <file...>
+
+ # Create a new scriptlet
  perlmv -e <code> -w <name>
+
+ # List available scriptlets
  perlmv -l
+
+ # Show source code of a scriptlet
  perlmv -s <name>
+
+ # Delete scriptlet
  perlmv -d <name>
 
 =head2 Usage examples
 
- $ ls
- A.txt B1 c2.txt D3.pl D4.pl
+ $ ls -1
+ A.txt
+ B1
+ c2.txt
+ D3.pl
+ D4.pl
 
 Rename files with prewritten scriptlet (B<ls>) and show (B<-v>) each file as it
 is being renamed.
@@ -49,14 +67,26 @@ Specify script in command line (B<-e>) but do not actually rename files (B<-d>,
 dry-run mode):
 
  $ perlmv -de 's/\d+//g' *
- `B1` -> `B`
- `c2.txt` -> `c.txt`
- `D3.pl` -> `D.pl`
- `D4.pl` -> `D.pl.1`
+ DRYRUN: `B1` -> `B`
+ DRYRUN: `c2.txt` -> `c.txt`
+ DRYRUN: `D3.pl` -> `D.pl`
+ DRYRUN: `D4.pl` -> `D.pl.1`
 
 Really rename the files this time:
 
  $ perlmv -e 's/\d+//g' *
+
+Execute multiple scriptlets and/or command-line code:
+
+ $ ls -1
+ a.txt
+ b.html
+ c.ini
+
+ $ perlmv -v -x to-number-ext -e '"file$_"' *
+ `a.txt` -> `1.txt` -> `file1.txt`
+ `b.html` -> `2.html` -> `file2.html`
+ `c.ini` -> `3.ini` -> `file3.ini`
 
 Save Perl code as scriptlet (in ~/.perlmv/scriptlets/):
 
@@ -77,6 +107,19 @@ Show source code of scriptlet:
 Remove scriptlet:
 
  $ perlmv -D remove-digits
+
+=head2 More examples
+
+From my real-world usage.
+
+Rename .flv partial files from my Firefox browser cache into ordered names
+(part01.flv, part02.flv, and so on):
+
+ $ ls --sort=t -r *01 | xargs perlmv -d -x to-number-ext -e '"part$_.flv"'
+ DRYRUN: `15D9F85Ad01` -> `01` -> `part01.flv`
+ DRYRUN: `FF8EB240d01` -> `02` -> `part02.flv`
+ DRYRUN: `9031E9A8d01` -> `03` -> `part03.flv`
+ ...
 
 =head1 DESCRIPTION
 
@@ -102,9 +145,10 @@ L<App::perlmv::scriptlets::std>.
 =head1 OPTIONS
 
  -c  (--compile) Only test compile code, do not run it on the arguments
- -e <CODE> (--execute) Specify code to rename file (\$_), e.g. 's/\.old\$/\.bak/'
  -D <NAME> (--delete) Delete scriptlet
  -d  (--dry-run) Dry-run (implies -v)
+ -e <CODE> (--execute) Specify Perl code to rename file (\$_). Can be specified
+     multiple times.
  -f  (--files) Only process files, do not process directories
  -h  (--help) Show this help
  -l  (--list) list all scriptlets
@@ -121,6 +165,9 @@ L<App::perlmv::scriptlets::std>.
  -V  (--version) Print version and exit
  -v  (--verbose) Verbose
  -w <NAME> (--write) Write code specified in -e as scriptlet
+ -x <NAME> Execute a scriptlet. Can be specified multiple times. -x is optional
+     if there is only one scriptlet to execute, and scriptlet name is specified
+     as the first argument, and there is no -e specified.
 
 =head1 FAQ
 

@@ -4,6 +4,7 @@ package App::perlmv;
 use strict;
 use warnings;
 use Cwd qw(abs_path getcwd);
+#use Data::Dump qw(dump);
 use File::Copy;
 use File::Find;
 use File::Path qw(make_path);
@@ -33,12 +34,13 @@ sub new {
             $homedir = File::HomeDir->my_home;
         };
 
-        $homedir ||= $ENV{'HOME'};
+        $homedir //= $ENV{'HOME'};
 
         die "FATAL: Can't determine home directory\n" unless $homedir;
     }
 
     my $self = {
+        codes           => [],
         dry_run         => 0,
         homedir         => $homedir,
         overwrite       => 0,
@@ -59,9 +61,10 @@ sub parse_opts {
 
     GetOptions(
         'c|check'         => \$self->{ 'check'         },
-        'e|execute=s'     => \$self->{ 'code'          },
         'D|delete=s'      => \$self->{ 'delete'        },
         'd|dry-run'       => \$self->{ 'dry_run'       },
+        'e|eval=s'        =>  $self->{ 'codes'         },
+        'h|help'          => sub { $self->print_help() },
         'l|list'          => \$self->{ 'list'          },
         'M|mode=s'        => \$self->{ 'mode'          },
         'o|overwrite'     => \$self->{ 'overwrite'     },
@@ -73,8 +76,9 @@ sub parse_opts {
         'w|write=s'       => \$self->{ 'write'         },
         'f|files'         => sub { $self->{ 'process_dir'    } = 0 },
         'S|no-symlinks'   => sub { $self->{ 'process_symlink'} = 0 },
-        'h|help'          => sub { $self->print_help()             },
         'V|version'       => sub { $self->print_version()          },
+        # we use \scalar to differentiate between -x and -e
+        'x|execute=s'     => sub { push @{$self->{'codes'}}, \$_[1]},
         '<>'              => sub { $self->parse_extra_opts(@_)     },
     ) or $self->print_help();
 }
@@ -104,7 +108,7 @@ sub run {
         'rename';
 
     $self->{'dry_run'} and $self->{'verbose'}++;
-    $self->{'mode'} ||= $default_mode;
+    $self->{'mode'} //= $default_mode;
 
     if ( $self->{'list'} ) {
         $self->load_scriptlets();
@@ -123,7 +127,9 @@ sub run {
     }
 
     if ( $self->{'write'} ) {
-        $self->store_scriptlet( $self->{'write'}, $self->{'code'} );
+        die "Please specify code of scriptlet" unless @{ $self->{'codes'} }
+            && !ref( $self->{'codes'}[0] );
+        $self->store_scriptlet( $self->{'write'}, $self->{'codes'}[0] );
         exit 0;
     }
 
@@ -132,13 +138,15 @@ sub run {
         exit 0;
     }
 
-    unless (defined $self->{'code'}) {
-        die 'FATAL: Must specify code (-e) or scriptlet name (first argument)'
+    unless (@{ $self->{'codes'} }) {
+        die 'FATAL: Must specify code (-e) or scriptlet name (-x/first argument)'
             unless $self->{'items'};
-        $self->{'code'} =
-            $self->load_scriptlet( scalar shift @{ $self->{'items'} } );
+        push @{ $self->{'codes'} }, \( scalar shift @{ $self->{'items'} } );
     }
-    exit 0 if $self->{'check'};
+    # convert all scriptlet names into their code
+    for (@{ $self->{'codes'} }) {
+        $_ = $self->load_scriptlet($$_) if ref($_);
+    }
 
     die "FATAL: Please specify some files in arguments\n"
         unless $self->{'items'};
@@ -158,22 +166,37 @@ Rename files using Perl code.
 
 Usage:
 
+ # Show help
  perlmv -h
 
+ # Execute a single scriptlet
  perlmv [options] <scriptlet> <file...>
+
+ # Execute code from command line
  perlmv [options] -e <code> <file...>
 
+ # Execute multiple scriptlets/command-line codes
+ perlmv [options] [ -x <scriptlet> | -e <code> ]+ <file...>
+
+ # Create a new scriptlet
  perlmv -e <code> -w <name>
+
+ # List available scriptlets
  perlmv -l
+
+ # Show source code of a scriptlet
  perlmv -s <name>
- perlmv -D <name>
+
+ # Delete scriptlet
+ perlmv -d <name>
 
 Options:
 
  -c  (--compile) Only test compile code, do not run it on the arguments
- -e <CODE> (--execute) Specify code to rename file (\$_), e.g. 's/\.old\$/\.bak/'
  -D <NAME> (--delete) Delete scriptlet
  -d  (--dry-run) Dry-run (implies -v)
+ -e <CODE> (--execute) Specify Perl code to rename file (\$_). Can be specified
+     multiple times.
  -f  (--files) Only process files, do not process directories
  -h  (--help) Show this help
  -l  (--list) list all scriptlets
@@ -190,6 +213,9 @@ Options:
  -V  (--version) Print version and exit
  -v  (--verbose) Verbose
  -w <NAME> (--write) Write code specified in -e as scriptlet
+ -x <NAME> Execute a scriptlet. Can be specified multiple times. -x is optional
+     if there is only one scriptlet to execute, and scriptlet name is specified
+     as the first argument, and there is no -e specified.
 
 USAGE
 
@@ -206,7 +232,7 @@ sub load_scriptlet {
 
 sub load_scriptlets {
     my ($self) = @_;
-    $self->{'scriptlets'} ||= $self->find_scriptlets();
+    $self->{'scriptlets'} //= $self->find_scriptlets();
 }
 
 sub find_scriptlets {
@@ -287,8 +313,7 @@ sub delete_user_scriptlet {
 }
 
 sub compile_code {
-    my ($self) = @_;
-    my $code = $self->{'code'};
+    my ($self, $code) = @_;
     no strict;
     no warnings;
     local $_ = "-TEST";
@@ -299,8 +324,7 @@ sub compile_code {
 }
 
 sub run_code_for_cleaning {
-    my ($self) = @_;
-    my $code = $self->{'code'};
+    my ($self, $code) = @_;
     no strict;
     no warnings;
     local $_ = "-CLEAN";
@@ -310,58 +334,88 @@ sub run_code_for_cleaning {
 }
 
 sub run_code {
-    my ($self) = @_;
-    my $code = $self->{'code'};
+    my ($self, $code) = @_;
     no strict;
     no warnings;
+    my $orig_ = $_;
     local $App::perlmv::code::TESTING = 0;
     local $App::perlmv::code::COMPILING = 0;
-    my $orig_ = $_;
     # It does need a package declaration to run it in App::perlmv::code
     my $res = eval "package App::perlmv::code; $code";
     die "FATAL: Code doesn't compile: code=$code, errmsg=$@\n" if $@;
     if (defined($res) && length($res) && $_ eq $orig_) { $_ = $res }
 }
 
+sub _sort {
+    my $self = shift;
+    $self->{reverse_order} ? (reverse sort @_) : (sort @_);
+}
+
 sub process_items {
-    my ($self, @items) = @_;
-    @items = $self->{'reverse_order'} ? (reverse sort @items) : (sort @items);
-    for my $item (@items) {
-        next if !$self->{'process_symlink'} && (-l $item);
-        if (-d _) {
+    my ($self, $code, $code_is_final, $items) = @_;
+    my $i = 0;
+    while ($i < @$items) {
+        my $item = $items->[$i];
+        $i++;
+        if ($item->{cwd}) {
+            chdir $item->{cwd} or die "Can't chdir to `$item->{cwd}`: $!";
+        }
+        next if !$self->{'process_symlink'} && (-l $item->{real_name});
+        if (-d $item->{real_name}) {
             next unless $self->{'process_dir'};
             if ($self->{'recursive'}) {
                 my $cwd = getcwd();
-                if (chdir $item) {
-                    print "INFO: chdir `$cwd/$item` ...\n" if $self->{'verbose'};
+                if (chdir $item->{real_name}) {
+                    print "INFO: chdir `$cwd/$item->{real_name}` ...\n"
+                        if $self->{'verbose'};
                     local *D;
                     opendir D, ".";
-                    my @d = grep { $_ ne '.' && $_ ne '..' } readdir D;
+                    my @subitems =
+                        $self->_sort(
+                            map { {name_for_script => $_, real_name => $_} }
+                            grep { $_ ne '.' && $_ ne '..' }
+                                readdir D
+                            );
                     closedir D;
-                    $self->process_items(@d);
+                    $self->process_items($code, $code_is_final, \@subitems);
+                    splice @$items, $i-1, 0, @subitems;
+                    $i += scalar(@subitems);
+                    $subitems[0]{cwd} = "$cwd/$item->{real_name}";
                     chdir $cwd or die "FATAL: Can't go back to `$cwd`: $!\n";
                 } else {
-                    warn "WARN: Can't chdir to `$cwd/$item`, skipped\n";
+                    warn "WARN: Can't chdir to `$cwd/$item->{real_name}`, ".
+                        "skipped\n";
                 }
             }
         }
-        $self->process_item($item, \@items);
+        $self->process_item($code, $code_is_final, $item, $items);
     }
 }
 
 sub process_item {
-    my ($self, $filename, $items) = @_;
+    my ($self, $code, $code_is_final, $item, $items) = @_;
 
-    local $_ = $filename;
-    $App::perlmv::code::FILES = $items;
-    my $old = $filename;
-    $self->run_code();
+    $App::perlmv::code::FILES =
+        [map {ref($_) ? $_->{name_for_script} : $_} @$items];
+    local $_ = $item->{name_for_script};
+    my $old = $item->{real_name};
+    $self->run_code($code);
     my $new = $_;
 
     my $aold = abs_path($old);
+    #die "Invalid path $old" unless defined($aold);
+    $aold = "" if !defined($aold);
     my $anew = abs_path($new);
+    #die "Invalid path $new" unless defined($anew);
+    $anew = "" if !defined($anew);
     $self->{_exists}{$aold}++ if (-e $aold);
     return if $aold eq $anew;
+
+    $item->{name_for_script} = $new;
+    unless ($code_is_final) {
+        push @{ $item->{intermediates} }, $new;
+        return;
+    }
 
     my $action;
     if (!defined($self->{mode}) || $self->{mode} =~ /^(rename|r)$/) {
@@ -393,7 +447,9 @@ sub process_item {
     $self->{_exists}{$anew}++;
     delete $self->{_exists}{$aold} if $action eq 'rename';
     print "DRYRUN: " if $self->{dry_run};
-    print "$action `$old` -> `$new`\n" if $self->{verbose};
+    print "$action " . join(" -> ",
+        map {"`$_`"} $old, @{ $item->{intermediates} // []}, $new)."\n"
+            if $self->{verbose};
     unless ($self->{dry_run}) {
         my $res;
 
@@ -448,15 +504,25 @@ sub rename {
         @items  = @{ $self->{'items'} // [] };
     }
 
-    # for cleaning between run
+    @items = map { {real_name=>$_, name_for_script=>$_} } $self->_sort(@items);
+
     if ($self->{_compiled}) {
-        $self->run_code_for_cleaning();
-    } else {
-        $self->compile_code();
-        $self->{_compiled} = 1;
+        # another run, clean first
+        $self->run_code_for_cleaning($_) for @{ $self->{'codes'} };
     }
     $self->{_exists} = {};
-    $self->process_items(@items);
+    local $self->{'recursive'} = $self->{'recursive'};
+    for (my $i=0; $i < @{ $self->{'codes'} }; $i++) {
+        my $code = $self->{'codes'}[$i];
+        $self->compile_code($code) unless $self->{'compiled'};
+        next if $self->{'check'};
+        my $code_is_final = ($i == @{ $self->{'codes'} }-1);
+        $self->{'recursive'} = 0 if $i;
+        #print STDERR "DEBUG: items (before): ".dump(@items)."\n";
+        $self->process_items($code, $code_is_final, \@items);
+        #print STDERR "DEBUG: items (after): ".dump(@items)."\n";
+    }
+    $self->{'compiled'}++;
 }
 
 =head1 SEE ALSO

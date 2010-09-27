@@ -29,15 +29,23 @@ sub end_testing {
 # script and then using method
 
 sub test_perlmv {
-    my ($files_before, $opts, $files_after, $test_name) = @_;
+    my ($files_before, $opts, $files_after, $test_name, $hook_before, $hook_after) = @_;
 
     for my $which ("method", "binary") {
         my $subdir = "rand".int(90_000_000*rand()+10_000_000);
         mkdir $subdir or die "Can't mkdir $ENV{TESTING_HOME}/$subdir: $!";
         chdir $subdir or die "Can't chdir to $ENV{TESTING_HOME}/$subdir: $!";
-        create_files(@$files_before);
+        if ($hook_before) {
+            $hook_before->();
+        } else {
+            create_files(@$files_before);
+        }
         run_perlmv($opts, $files_before, $which);
-        files_are($files_after, "$test_name ($which)");
+        if ($hook_after) {
+            $hook_after->();
+        } else {
+            files_are($files_after, "$test_name ($which)");
+        }
         remove_files();
         chdir ".." or die "Can't chdir to ..: $!";
         remove_tree($subdir) or die "Can't rmdir $ENV{TESTING_HOME}/$subdir: $!";
@@ -67,17 +75,23 @@ sub run_perlmv {
                 when ('dry_run')       { push @cmd, "-d" }
                 when ('mode')          { } # already processed above
                 when ('extra_opt')     { } # will be processed later
+                when ('extra_arg')     { } # will be processed later
                 when ('before_rmtree') { } # will be processed later
                 when ('overwrite')     { push @cmd, "-o" }
                 when ('parents')       { push @cmd, "-p" }
+                when ('recursive')     { push @cmd, "-R" }
                 when ('reverse_order') { push @cmd, "-r" }
                 when ('verbose')       { push @cmd, "-v" }
+                when ('codes')         {
+                    push @cmd, (map {ref($_) ? ("-x", $$_) : ("-e", $_)} @$v);
+                }
                 default { die "BUG: Can't handle opts{$_} yet!" }
             }
         }
         if ($opts->{extra_opt}) { push @cmd, $opts->{extra_opt} }
         do { /(.*)/; push @cmd, $1 } for @$files;
-        #print "#DEBUG: system(", join(", ", @cmd), ")\n";
+        if ($opts->{extra_arg}) { push @cmd, $opts->{extra_arg} }
+        print "#DEBUG: system(", join(", ", @cmd), ")\n";
         system @cmd;
         die "Can't system(", join(" ", @cmd), "): $?" if $?;
     } else {
@@ -85,19 +99,25 @@ sub run_perlmv {
         for (keys %$opts) {
             my $v = $opts->{$_};
             if ($_ eq 'extra_opt') {
-                $pmv->{code} = $pmv->load_scriptlet($v);
+                push @{ $pmv->{codes} }, $pmv->load_scriptlet($v);
+            } elsif ($_ eq 'extra_arg') {
+                # later, below
+            } elsif ($_ eq 'code') {
+                push @{ $pmv->{codes} }, $v;
             } else {
                 $pmv->{$_} = $v;
             }
         }
-        print "#DEBUG: {", join(", ", map {"$_=>$opts->{$_}"} sort keys %$opts), "} rename(", join(", ", @$files), ")\n";
+        local $pmv->{codes} = [map { ref($_) ? $pmv->load_scriptlet($$_) : $_ } @{ $pmv->{codes} }];
         if ($opts->{compile}) {
-            $pmv->compile_code;
+            $pmv->compile_code($_) for @{$pmv->{codes}};
         } elsif ($opts->{write}) {
-            $pmv->store_scriptlet($opts->{write}, $opts->{code});
+            $pmv->store_scriptlet($opts->{write}, $pmv->{codes}[0]);
         } elsif ($opts->{delete}) {
             $pmv->delete_user_scriptlet($opts->{delete});
         } else {
+            $files = [@$files];
+            push @$files, $opts->{extra_arg} if $opts->{extra_arg};
             $pmv->rename(@$files);
         }
     }
@@ -110,6 +130,7 @@ sub run_perlmv {
 sub create_files {
     do {open F, ">$_"; close F} for map { lc } @_;
 }
+
 
 sub remove_files {
     for (<*>) { my ($f) = /(.+)/; unlink $f }
