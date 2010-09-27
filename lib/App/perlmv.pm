@@ -463,4 +463,6 @@ sub rename {
 
 L<perlmv>
 
+=cut
+
 1;
