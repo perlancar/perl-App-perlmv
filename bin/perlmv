@@ -57,11 +57,13 @@ Usage:
  D3.pl
  D4.pl
 
-Rename files with prewritten scriptlet (B<ls>) and show (B<-v>) each file as it
+Rename files with prewritten scriptlet (B<>) and show (B<-v>) each file as it
 is being renamed.
 
- $ perlmv -v lc *.txt
- `A.txt` -> `a.txt`
+ $ perlmv -v remove-common-prefix file1.jpg file2.zip files.txt
+ `file1.jpg` -> `1.jpg`
+ `file2.zip` -> `2.zip`
+ `files.txt` -> `s.txt`
 
 Specify script in command line (B<-e>) but do not actually rename files (B<-d>,
 dry-run mode):
@@ -83,7 +85,7 @@ Execute multiple scriptlets and/or command-line code:
  b.html
  c.ini
 
- $ perlmv -v -x to-number-ext -e '"file$_"' *
+ $ perlmv -vx to-number-ext -e '"file$_"' *
  `a.txt` -> `1.txt` -> `file1.txt`
  `b.html` -> `2.html` -> `file2.html`
  `c.ini` -> `3.ini` -> `file3.ini`
