@@ -43,6 +43,7 @@ sub new {
         codes           => [],
         dry_run         => 0,
         homedir         => $homedir,
+        sort_mode       => 1, # 1 = sort ascibetically, -1 = reverse, 0 = no sort
         overwrite       => 0,
         process_dir     => 1,
         process_symlink => 1,
@@ -70,8 +71,9 @@ sub parse_opts {
         'o|overwrite'     => \$self->{ 'overwrite'     },
         'p|parents'       => \$self->{ 'parents'       },
         'R|recursive'     => \$self->{ 'recursive'     },
-        'r|reverse'       => \$self->{ 'reverse_order' },
+        'r|reverse'       => sub { $self->{sort_mode} = -1 },
         's|show=s'        => \$self->{ 'show'          },
+        'T|no-sort'       => sub { $self->{sort_mode} =  0 },
         'v|verbose'       => \$self->{ 'verbose'       },
         'w|write=s'       => \$self->{ 'write'         },
         'f|files'         => sub { $self->{ 'process_dir'    } = 0 },
@@ -210,6 +212,7 @@ Options:
  -r  (--reverse) reverse order of processing (by default order is asciibetically)
  -S  (--no-symlinks) Do not process symlinks
  -s <NAME> (--show) Show source code for scriptlet
+ -T  (--no-sort) do not sort files (default is sort ascibetically)
  -V  (--version) Print version and exit
  -v  (--verbose) Verbose
  -w <NAME> (--write) Write code specified in -e as scriptlet
@@ -348,7 +351,9 @@ sub run_code {
 
 sub _sort {
     my $self = shift;
-    $self->{reverse_order} ? (reverse sort @_) : (sort @_);
+    $self->{sort_mode} == -1 ? (reverse sort @_) :
+        $self->{sort_mode} == 1 ? (sort @_) :
+            @_;
 }
 
 sub process_items {

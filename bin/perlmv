@@ -115,7 +115,7 @@ From my real-world usage.
 Rename .flv partial files from my Firefox browser cache into ordered names
 (part01.flv, part02.flv, and so on):
 
- $ ls --sort=t -r *01 | xargs perlmv -d -x to-number-ext -e '"part$_.flv"'
+ $ ls --sort=t -r *01 | xargs perlmv -Tdx to-number-ext -e '"part$_.flv"'
  DRYRUN: `15D9F85Ad01` -> `01` -> `part01.flv`
  DRYRUN: `FF8EB240d01` -> `02` -> `part02.flv`
  DRYRUN: `9031E9A8d01` -> `03` -> `part03.flv`
@@ -162,6 +162,7 @@ L<App::perlmv::scriptlets::std>.
  -r  (--reverse) reverse order of processing (by default order is asciibetically)
  -S  (--no-symlinks) Do not process symlinks
  -s <NAME> (--show) Show source code for scriptlet
+ -T  (--no-sort) do not sort files (default is sort ascibetically)
  -V  (--version) Print version and exit
  -v  (--verbose) Verbose
  -w <NAME> (--write) Write code specified in -e as scriptlet

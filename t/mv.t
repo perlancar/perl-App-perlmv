@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 2*11;
+use Test::More tests => 2*13;
 use FindBin '$Bin';
 ($Bin) = $Bin =~ /(.+)/;
 
@@ -24,5 +24,9 @@ test_perlmv([1, 2, 3], {code=>'$_++', reverse_order=>1}, ["2", "3", "4"], 'rever
 
 test_perlmv([qw/aab abb acb/], {codes=>[\'remove-common-prefix', \'remove-common-suffix']}, [qw/a b c/], 'multi (scriptlet+scriptlet)');
 test_perlmv([qw/aab abb acb/], {codes=>[\'remove-common-prefix', '"file$_"', \'remove-common-suffix']}, [qw/filea fileb filec/], 'multi (scriptlet+eval+scriptlet)');
+
+# [2, 3, 1] -> [3.1, 4, 2], but sorted by test_perlmv
+test_perlmv([2, 3, 1], {code=>'$_+1'}, [2.1, 3.1, 4], 'no-sort off');
+test_perlmv([2, 3, 1], {code=>'$_+1', no_sort=>1}, [2, 3.1, 4], 'no-sort on');
 
 end_testing();

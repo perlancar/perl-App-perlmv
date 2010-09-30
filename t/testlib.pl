@@ -81,6 +81,7 @@ sub run_perlmv {
                 when ('parents')       { push @cmd, "-p" }
                 when ('recursive')     { push @cmd, "-R" }
                 when ('reverse_order') { push @cmd, "-r" }
+                when ('no_sort')       { push @cmd, "-T" }
                 when ('verbose')       { push @cmd, "-v" }
                 when ('codes')         {
                     push @cmd, (map {ref($_) ? ("-x", $$_) : ("-e", $_)} @$v);
@@ -102,6 +103,10 @@ sub run_perlmv {
                 push @{ $pmv->{codes} }, $pmv->load_scriptlet($v);
             } elsif ($_ eq 'extra_arg') {
                 # later, below
+            } elsif ($_ eq 'reverse_order') {
+                $pmv->{sort_mode} = -1;
+            } elsif ($_ eq 'no_sort') {
+                $pmv->{sort_mode} = 0;
             } elsif ($_ eq 'code') {
                 push @{ $pmv->{codes} }, $v;
             } else {
