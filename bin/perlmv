@@ -124,8 +124,16 @@ Rename .flv partial files from my Firefox browser cache into ordered names
 =head1 DESCRIPTION
 
 Perlmv lets you rename files using Perl code. All the Perl code needs to do is
-modify the filename in C<$_> and perlmv will do the rest (actual renaming,
-recursive renaming, handling filename conflicts, dry-run mode, etc.).
+modify the filename in C<$_> (or just return a value) and perlmv will do the rest
+(actual renaming, recursive renaming, handling filename conflicts, dry-run mode,
+etc.).
+
+New filename will be taken from the new value of $_ (if it is modified) or the
+last expression. So '$_ = lc' and 'lc' are equivalent.
+
+The arrayref $FILES is also available to the Perl code. It contains,
+unsurprisingly, the list of files to be processed. The Perl code is not supposed
+to modify this value.
 
 Perl code will first be run (eval-ed) once at the beginning for testing, with
 C<-TEST> as the filename in C<$_> (and C<$TESTING> will be set to true). Perl
