@@ -1,5 +1,15 @@
 Revision history for App-perlmv
 
+0.40     2010-09-30
+
+         Clean backup files.
+
+
+0.39     2010-09-30
+
+         Add option: -T (--no-sort) to make example work.
+
+
 0.38     2010-09-27
 
          Multiple scriptlets and/or command-line code can now be specified, a la
