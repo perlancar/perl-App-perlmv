@@ -75,6 +75,20 @@ s/\Q$COMMON_SUFFIX\E$/$EXT/;
 $_
 EOT
 
+=head2 to-number
+
+Rename files into numbers. Ex: (file1.txt, foo.jpg, quux.mpg) -> (1.txt, 2.jpg,
+3.mpg). See also: to-number-ext.
+
+=cut
+
+$scriptlets{'to-number'} = <<'EOT';
+### Summary: Rename files into numbers. Ex: (file1.txt, foo.jpg, quux.mpg) -> (1, 2, 3)
+if ($COMPILING || $CLEANING) { $i=0 } else { $i++ }
+$ndig = @$FILES >= 1000 ? 4 : @$FILES >= 100 ? 3 : @$FILES >= 10 ? 2 : 1;
+sprintf "%0${ndig}d", $i
+EOT
+
 =head2 to-number-ext
 
 Rename files into numbers. Preserve extensions. Ex: (file1.txt,
@@ -88,6 +102,20 @@ if ($COMPILING || $CLEANING) { $i=0 } else { $i++ }
 if (/.+\.(.+)/) {$ext=$1} else {$ext=undef}
 $ndig = @$FILES >= 1000 ? 4 : @$FILES >= 100 ? 3 : @$FILES >= 10 ? 2 : 1;
 sprintf "%0${ndig}d%s", $i, (defined($ext) ? ".$ext" : "")
+EOT
+
+=head2 to-timestamp
+
+Rename files into timestamp. Ex: file1.txt -> 2010-05-13-10_43_49. See also:
+to-timestamp-ext.
+
+=cut
+
+$scriptlets{'to-timestamp'} = <<'EOT';
+### Summary: Rename files into timestamp. Ex: file1.txt -> 2010-05-13-10_43_49
+use POSIX;
+@st = lstat $_;
+POSIX::strftime("%Y-%m-%d-%H_%M_%S", localtime $st[9])
 EOT
 
 =head2 to-timestamp-ext
