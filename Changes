@@ -1,8 +1,10 @@
 Revision history for App-perlmv
 
-0.41     2010-10-XX
+0.41     2010-10-18
 
          Add scriptlet: to-number & to-timestamp.
+
+         Some minor dzil fixes.
 
 
 0.40     2010-09-30

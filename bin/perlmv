@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # workaround for dzil
-package main;
+package perlmv;
 
 use strict;
 use warnings;
