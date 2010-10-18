@@ -1,5 +1,5 @@
 package App::perlmv;
-# ABSTRACT: Rename files using Perl code.
+# ABSTRACT: Rename files using Perl code
 
 use strict;
 use warnings;
