@@ -19,6 +19,19 @@ $scriptlets{'dedup-space'} = <<'EOT';
 s/\s{2,}/ /g; $_
 EOT
 
+=head2 keep-one-ext
+
+Remove all but the last file extension if there are more than one, e.g. (1.tar,
+2.mp3.mp3) -> (1.tar, 2.mp3). TODO: treat tar.gz/tar.bz2/etc as one
+extension.
+
+=cut
+
+$scriptlets{'keep-one-ext'} = <<'EOT';
+### Summary: Remove all but the last file extension if there are more than one, e.g. (1.tar, 2.mp3.mp3) -> (1.tar, 2.mp3)
+s/(.+?)(?:\.\w{1,5})+(\.\w{1,5})$/$1$2/
+EOT
+
 =head2 pinyin
 
 Rename Chinese characters in filename into their pinyin. Requires
@@ -73,6 +86,28 @@ if (!defined($COMMON_SUFFIX) && !$TESTING) {
 }
 s/\Q$COMMON_SUFFIX\E$/$EXT/;
 $_
+EOT
+
+=head2 remove-ext
+
+Remove the last file extension, e.g. (1, 2.mp3, 3.tar.gz) -> (1, 2, 3.tar)
+
+=cut
+
+$scriptlets{'remove-ext'} = <<'EOT';
+### Summary: Remove the last file extension, e.g. (1, 2.mp3, 3.tar.gz) -> (1, 2, 3.tar)
+s/(.+)\.\w{1,5}$/$1/
+EOT
+
+=head2 remove-all-ext
+
+Remove all file extensions, e.g. (file.html.gz) -> (file)
+
+=cut
+
+$scriptlets{'remove-all-ext'} = <<'EOT';
+### Summary: Remove all file extensions, e.g. (file.html.gz) -> (file)
+s/(.+?)(?:\.\w{1,5})+$/$1/
 EOT
 
 =head2 to-number
