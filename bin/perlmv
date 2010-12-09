@@ -57,8 +57,8 @@ Usage:
  D3.pl
  D4.pl
 
-Rename files with prewritten scriptlet (B<>) and show (B<-v>) each file as it
-is being renamed.
+Rename files with prewritten scriptlet (B<remove-common-prefix>) and show (B<-v>)
+each file as it is being renamed.
 
  $ perlmv -v remove-common-prefix file1.jpg file2.zip files.txt
  `file1.jpg` -> `1.jpg`
@@ -101,12 +101,12 @@ List all scriptlets (add B<-v> to also show their contents):
  uc
  remove-digits
 
-Show source code of scriptlet:
+Show (B<-s>) source code of scriptlet:
 
  $ perlmv -s remove-digits
  s/\d+//g
 
-Remove scriptlet:
+Remove (B<-D>) scriptlet:
 
  $ perlmv -D remove-digits
 
