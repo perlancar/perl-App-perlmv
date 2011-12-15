@@ -1,6 +1,6 @@
 Revision history for App-perlmv
 
-0.42     NOT YET RELEASED
+0.42     2011-12-15
 
          Add scriptlets: keep-one-ext, remove-ext, remove-all-ext.
 
