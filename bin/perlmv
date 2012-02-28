@@ -133,9 +133,31 @@ etc.).
 New filename will be taken from the new value of $_ (if it is modified) or the
 last expression. So '$_ = lc' and 'lc' are equivalent.
 
-The arrayref $FILES is also available to the Perl code. It contains,
-unsurprisingly, the list of files to be processed. The Perl code is not supposed
-to modify this value.
+The following variables are also available to the Perl code:
+
+=over 4
+
+=item * C<$FILES> (arrayref)
+
+The list of items to be processed. The Perl code is not supposed to modify this
+value.
+
+=item * C<$FILE> (string)
+
+The filename of item (without path). The Perl code is not supposed to modify
+this value.
+
+=item * C<$DIR> (string)
+
+The directory of item (absolute path). The Perl code is not supposed to modify
+this value.
+
+=item * C<$PARENT> (string)
+
+The name of parent (containing) directory of the item (without path). The Perl
+code is not supposed to modify this value.
+
+=back
 
 Perl code will first be run (eval-ed) once at the beginning for testing, with
 C<-TEST> as the filename in C<$_> (and C<$TESTING> will be set to true). Perl

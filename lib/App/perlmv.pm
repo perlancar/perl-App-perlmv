@@ -401,19 +401,28 @@ sub process_items {
 sub process_item {
     my ($self, $code, $code_is_final, $item, $items) = @_;
 
-    $App::perlmv::code::FILES =
+    local $App::perlmv::code::FILES =
         [map {ref($_) ? $_->{name_for_script} : $_} @$items];
     local $_ = $item->{name_for_script};
-    my $old = $item->{real_name};
-    $self->run_code($code);
-    my $new = $_;
 
+    my $old = $item->{real_name};
     my $aold = abs_path($old);
     #die "Invalid path $old" unless defined($aold);
     $aold = "" if !defined($aold);
+    my ($oldvol,$olddir,$oldfile)=File::Spec->splitpath($aold);
+    my ($olddirvol,$olddirdir,$olddirfile) = File::Spec->splitpath(
+        abs_path($olddir));
+    local $App::perlmv::code::DIR    = $olddir;
+    local $App::perlmv::code::FILE   = $oldfile;
+    local $App::perlmv::code::PARENT = $olddirfile;
+
+    $self->run_code($code);
+
+    my $new = $_;
     my $anew = abs_path($new);
     #die "Invalid path $new" unless defined($anew);
     $anew = "" if !defined($anew);
+
     $self->{_exists}{$aold}++ if (-e $aold);
     return if $aold eq $anew;
 
