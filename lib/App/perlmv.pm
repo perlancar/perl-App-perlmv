@@ -1,6 +1,7 @@
 package App::perlmv;
 # ABSTRACT: Rename files using Perl code
 
+use 5.010;
 use strict;
 use warnings;
 use Cwd qw(abs_path getcwd);

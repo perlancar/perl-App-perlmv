@@ -1,4 +1,9 @@
 package App::perlmv::scriptlets::std;
+
+use 5.010;
+use strict;
+use warnings;
+
 # ABSTRACT: A collection of perlmv scriptlets
 
 =head1 SCRIPTLETS
