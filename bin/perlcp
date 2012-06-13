@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 
-# workaround for dzil
-package perlcp;
-
 use strict;
 use warnings;
 use FindBin '$Bin';
@@ -14,10 +11,8 @@ $pmv->{ 'mode' } = 'copy';
 $pmv->run;
 
 1;
-__END__
-=head1 NAME
-
-perlcp - Copy files using Perl code
+# ABSTRACT: Copy files using Perl code
+# PODNAME: perlcp
 
 =head1 DESCRIPTION
 

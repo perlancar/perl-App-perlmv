@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 
-# workaround for dzil
-package perlln_s;
-
 use strict;
 use warnings;
 use FindBin '$Bin';
@@ -14,9 +11,8 @@ $pmv->{ 'mode' } = 'symlink';
 $pmv->run;
 
 1;
-=head1 NAME
-
-perlln_s - Symlink files using Perl code
+# ABSTRACT: Symlink files using Perl code
+# PODNAME: perlln_s
 
 =head1 DESCRIPTION
 

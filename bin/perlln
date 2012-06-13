@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 
-# workaround for dzil
-package perlln;
-
 use strict;
 use warnings;
 use FindBin '$Bin';
@@ -14,10 +11,8 @@ $pmv->{ 'mode' } = 'link';
 $pmv->run;
 
 1;
-__END__
-=head1 NAME
-
-perlln - Link files using Perl code
+# ABSTRACT: Link files using Perl code
+# PODNAME: perlln
 
 =head1 DESCRIPTION
 

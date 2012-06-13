@@ -1,8 +1,5 @@
 #!/usr/bin/perl
 
-# workaround for dzil
-package perlmv;
-
 use strict;
 use warnings;
 use FindBin '$Bin';
@@ -14,11 +11,8 @@ $pmv->{ 'mode' } = 'rename';
 $pmv->run;
 
 1;
-__END__
-
-=head1 NAME
-
-perlmv - Rename files using Perl code
+# ABSTRACT: Rename files using Perl code
+# PODNAME: perlmv
 
 =head1 SYNOPSIS
 
