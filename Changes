@@ -1,33 +1,33 @@
 Revision history for App-perlmv
 
-0.43     2012-02-28
+0.43     2012-02-28 (SHARYANTO)
 
          Provide $FILE, $DIR, $PARENT for scriptlet.
 
 
-0.42     2011-12-15
+0.42     2011-12-15 (SHARYANTO)
 
          Add scriptlets: keep-one-ext, remove-ext, remove-all-ext.
 
 
-0.41     2010-10-18
+0.41     2010-10-18 (SHARYANTO)
 
          Add scriptlet: to-number & to-timestamp.
 
          Some minor dzil fixes.
 
 
-0.40     2010-09-30
+0.40     2010-09-30 (SHARYANTO)
 
          Clean backup files.
 
 
-0.39     2010-09-30
+0.39     2010-09-30 (SHARYANTO)
 
          Add option: -T (--no-sort) to make example work.
 
 
-0.38     2010-09-27
+0.38     2010-09-27 (SHARYANTO)
 
          Multiple scriptlets and/or command-line code can now be specified, a la
          piping.
@@ -43,12 +43,12 @@ Revision history for App-perlmv
          Add more documentation and examples.
 
 
-0.37     2010-07-03
+0.37     2010-07-03 (SHARYANTO)
 
          Fix bug: store_scriptlets was broken (Thanks Kurt vom Walde).
 
 
-0.36     2010-07-02
+0.36     2010-07-02 (SHARYANTO)
 
          Introduce $COMPILING as alias for $COMPILING.
 
@@ -57,31 +57,31 @@ Revision history for App-perlmv
          Fix scriptlet: to-number-ext (still used @ARGV).
 
 
-0.35     2010-07-01
+0.35     2010-07-01 (SHARYANTO)
 
          Add scriptlet: trim.
 
          Add scriptlet: dedup-space.
 
 
-0.34     2010-06-30
+0.34     2010-06-30 (SHARYANTO)
 
          Add test for each included scriptlet.
 
          Provide $FILES (arrayref) for code.
 
 
-0.33     2010-06-29
+0.33     2010-06-29 (SHARYANTO)
 
          Require Test::Exception [reported by cpantesters]
 
 
-0.32     2010-06-24
+0.32     2010-06-24 (SHARYANTO)
 
          Fix failing tests on *cp*antesters machines.
 
 
-0.31     2010-06-23
+0.31     2010-06-23 (SHARYANTO)
 
          Now requires Perl 5.10 (sorry guys).
 
@@ -93,7 +93,7 @@ Revision history for App-perlmv
          by cpantesters).
 
 
-0.30     2010-05-21
+0.30     2010-05-21 (SHARYANTO)
 
          Add option: -p (create intermediate dirs).
 
@@ -102,12 +102,12 @@ Revision history for App-perlmv
          Add new commands: perlcp, perlln, perlln_s.
 
 
-0.29     2010-05-15
+0.29     2010-05-15 (SHARYANTO)
 
          Fix -v.
 
 
-0.28     2010-05-15
+0.28     2010-05-15 (SHARYANTO)
 
          Rename option: -r (recursive) -> -R
 
@@ -117,12 +117,12 @@ Revision history for App-perlmv
          just say -e 'lc' instead of -e '$_=lc')
 
 
-0.27     2010-05-14
+0.27     2010-05-14 (SHARYANTO)
 
          Adjust test to account for case-insensitive filesystems.
 
 
-0.26     2010-05-13
+0.26     2010-05-13 (SHARYANTO)
 
          Rename options: -S -> -s, -W -> -w, -L -> -l.
 
@@ -133,14 +133,14 @@ Revision history for App-perlmv
          Add scriptlets: unaccent, to-timestamp-ext.
 
 
-0.25     2010-05-13
+0.25     2010-05-13 (SHARYANTO)
 
          Documentation.
 
          Sort -L output. -Lv will show each scriptlet's source.
 
 
-0.24     2010-05-12
+0.24     2010-05-12 (SHARYANTO)
 
          First release to CPAN. Prior versions were not released and
          named C<perlrename>.
