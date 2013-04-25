@@ -18,10 +18,10 @@ $pmv->run;
 
 =head1 DESCRIPTION
 
-See L<perlrename> for more documentation.
+See L<perlmv> for more documentation.
 
 =head1 SEE ALSO
 
-L<perlrename>
+L<perlmv>
 
 =cut
