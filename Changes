@@ -1,5 +1,10 @@
 Revision history for App-perlmv
 
+0.45     2013-04-25 (SHARYANTO)
+
+         No functional changes. Move main POD from perlrename -> perlmv.
+
+
 0.44     2013-04-25 (SHARYANTO)
 
          - 'perlmv' now uses File::Copy::move() to be able to move files across
