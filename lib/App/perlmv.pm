@@ -12,14 +12,7 @@ use File::Path qw(make_path);
 use File::Spec;
 use Getopt::Long qw(:config no_ignore_case bundling);
 
-=head1 DESCRIPTION
-
-This application is used via the B<perlmv> command. See L<perlmv> for more
-documentation.
-
-=for Pod::Coverage .+
-
-=cut
+# VERSION
 
 sub new {
     my ($class) = @_;
@@ -547,10 +540,9 @@ sub rename {
     $self->{'compiled'}++;
 }
 
-=head1 SEE ALSO
+1;
+# ABSTRACT: Module that implements perlmv
 
-L<perlmv>
+=for Pod::Coverage ^(.*)$
 
 =cut
-
-1;

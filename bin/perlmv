@@ -6,6 +6,8 @@ use FindBin '$Bin';
 use lib "$Bin/../lib";
 use App::perlmv;
 
+# VERSION
+
 my $pmv = App::perlmv->new;
 $pmv->{ 'mode' } = 'mv';
 $pmv->run;

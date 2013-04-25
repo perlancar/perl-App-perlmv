@@ -1,5 +1,12 @@
 Revision history for App-perlmv
 
+0.44     2013-04-25 (SHARYANTO)
+
+         - 'perlmv' now uses File::Copy::move() to be able to move files across
+           devices. The new script 'perlrename' is added; this one still uses
+           Perl's rename().
+
+
 0.43     2012-02-28 (SHARYANTO)
 
          Provide $FILE, $DIR, $PARENT for scriptlet.

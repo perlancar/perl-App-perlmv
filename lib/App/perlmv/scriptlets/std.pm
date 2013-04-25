@@ -4,6 +4,8 @@ use 5.010;
 use strict;
 use warnings;
 
+# VERSION
+
 # ABSTRACT: A collection of perlmv scriptlets
 
 =head1 SCRIPTLETS
