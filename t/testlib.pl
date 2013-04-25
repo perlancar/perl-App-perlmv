@@ -57,9 +57,10 @@ sub run_perlmv {
     $which //= "method";
 
     if ($which eq 'binary') {
-        my $cmd = "perlmv";
+        my $cmd = "perlrename";
         if ($opts->{mode}) {
             given ($opts->{mode}) {
+                when ('m') { $cmd = "perlmv" }
                 when ('c') { $cmd = "perlcp" }
                 when ('s') { $cmd = "perlln_s" }
                 when ('l') { $cmd = "perlln" }

@@ -44,7 +44,7 @@ sub new {
         codes           => [],
         dry_run         => 0,
         homedir         => $homedir,
-        sort_mode       => 1, # 1 = sort ascibetically, -1 = reverse, 0 = no sort
+        sort_mode       => 1, # 1=sort ascibetically, -1=reverse, 0=no sort
         overwrite       => 0,
         process_dir     => 1,
         process_symlink => 1,
@@ -105,9 +105,10 @@ sub run {
 
     # -m is reserved for file mode
     my $default_mode =
-        $0 =~ /perlcp/   ? 'copy'    :
-        $0 =~ /perlln_s/ ? 'symlink' :
-        $0 =~ /perlln/   ? 'link'    :
+        $0 =~ /perlcp/     ? 'copy'    :
+        $0 =~ /perlln_s/   ? 'symlink' :
+        $0 =~ /perlln/     ? 'link'    :
+        $0 =~ /perlmv/     ? 'move'    :
         'rename';
 
     $self->{'dry_run'} and $self->{'verbose'}++;
@@ -203,14 +204,15 @@ Options:
  -f  (--files) Only process files, do not process directories
  -h  (--help) Show this help
  -l  (--list) list all scriptlets
- -M <MODE> (--mode) Specify mode, default is 'rename' (or 'r'). Use 'copy' or 'c'
-     to copy instead of rename, 'symlink' or 's' to create a symbolic link, and
+ -M <MODE> (--mode) Specify mode, default is 'mv' (or 'm'). Use 'rename' or 'r'
+     for rename (the same as mv but won't do cross devices), 'copy' or 'c' to
+     copy instead of rename, 'symlink' or 's' to create a symbolic link, and
      'link' or 'l' to create a (hard) link.
  -o  (--overwrite) Overwrite (by default, ".1", ".2", and so on will be appended
      to avoid overwriting existing files)
  -p  (--parents) Create intermediate directories
  -R  (--recursive) Recursive
- -r  (--reverse) reverse order of processing (by default order is asciibetically)
+ -r  (--reverse) reverse order of processing (by default asciibetically)
  -S  (--no-symlinks) Do not process symlinks
  -s <NAME> (--show) Show source code for scriptlet
  -T  (--no-sort) do not sort files (default is sort ascibetically)
@@ -435,7 +437,9 @@ sub process_item {
     my $action;
     if (!defined($self->{mode}) || $self->{mode} =~ /^(rename|r)$/) {
         $action = "rename";
-    } elsif ($self->{mode} =~ /^(copy|c)$/) {
+    } elsif ($self->{mode} =~ /^(move|mv|m)$/) {
+        $action = "move";
+    } elsif ($self->{mode} =~ /^(copy|cp|c)$/) {
         $action = "copy";
     } elsif ($self->{mode} =~ /^(symlink|sym|s)$/) {
         $action = "symlink";
@@ -443,7 +447,7 @@ sub process_item {
         $action = "link";
     } else {
         die "Unknown mode $self->{mode}, please use one of: ".
-            "rename (r), copy (c), symlink (s), or link (l).";
+            "move (m), rename (r), copy (c), symlink (s), or link (l).";
     }
 
     my $orig_new = $new;
@@ -460,7 +464,7 @@ sub process_item {
         }
     }
     $self->{_exists}{$anew}++;
-    delete $self->{_exists}{$aold} if $action eq 'rename';
+    delete $self->{_exists}{$aold} if $action eq 'rename' || $action eq 'move';
     print "DRYRUN: " if $self->{dry_run};
     print "$action " . join(" -> ",
         map {"`$_`"} $old, @{ $item->{intermediates} // []}, $new)."\n"
@@ -482,7 +486,10 @@ sub process_item {
         }
 
         my $err = "";
-        if ($action eq 'rename') {
+        if ($action eq 'move') {
+            $res = File::Copy::move($old, $new);
+            $err = $! unless $res;
+        } elsif ($action eq 'rename') {
             $res = rename $old, $new;
             $err = $! unless $res;
         } elsif ($action eq 'copy') {
