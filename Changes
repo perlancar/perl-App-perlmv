@@ -2,7 +2,7 @@ Revision history for App-perlmv
 
 0.45     2013-04-25 (SHARYANTO)
 
-         No functional changes. Move main POD from perlrename -> perlmv.
+         - No functional changes. Move main POD from perlrename -> perlmv.
 
 
 0.44     2013-04-25 (SHARYANTO)
@@ -14,145 +14,145 @@ Revision history for App-perlmv
 
 0.43     2012-02-28 (SHARYANTO)
 
-         Provide $FILE, $DIR, $PARENT for scriptlet.
+         - Provide $FILE, $DIR, $PARENT for scriptlet.
 
 
 0.42     2011-12-15 (SHARYANTO)
 
-         Add scriptlets: keep-one-ext, remove-ext, remove-all-ext.
+         - Add scriptlets: keep-one-ext, remove-ext, remove-all-ext.
 
 
 0.41     2010-10-18 (SHARYANTO)
 
-         Add scriptlet: to-number & to-timestamp.
+         - Add scriptlet: to-number & to-timestamp.
 
-         Some minor dzil fixes.
+         - Some minor dzil fixes.
 
 
 0.40     2010-09-30 (SHARYANTO)
 
-         Clean backup files.
+         - Clean backup files.
 
 
 0.39     2010-09-30 (SHARYANTO)
 
-         Add option: -T (--no-sort) to make example work.
+         - Add option: -T (--no-sort) to make example work.
 
 
 0.38     2010-09-27 (SHARYANTO)
 
-         Multiple scriptlets and/or command-line code can now be specified, a la
-         piping.
+         - Multiple scriptlets and/or command-line code can now be specified, a
+           la piping.
 
-         INCOMPATIBLE: -e is now --eval instead of --execute. New -x option is
-         now --execute.
+         - INCOMPATIBLE: -e is now --eval instead of --execute. New -x option is
+           now --execute.
 
-         Some fixes in dryrun handling.
+         - Some fixes in dryrun handling.
 
-         Allow -e '' (previous version would wrongly assume next argument is
-         scriptlet).
+         - Allow -e '' (previous version would wrongly assume next argument is
+           scriptlet).
 
-         Add more documentation and examples.
+         - Add more documentation and examples.
 
 
 0.37     2010-07-03 (SHARYANTO)
 
-         Fix bug: store_scriptlets was broken (Thanks Kurt vom Walde).
+         - Fix bug: store_scriptlets was broken (Thanks Kurt vom Walde).
 
 
 0.36     2010-07-02 (SHARYANTO)
 
-         Introduce $COMPILING as alias for $COMPILING.
+         - Introduce $COMPILING as alias for $COMPILING.
 
-         Introduce $CLEANING for running code between run.
+         - Introduce $CLEANING for running code between run.
 
-         Fix scriptlet: to-number-ext (still used @ARGV).
+         - Fix scriptlet: to-number-ext (still used @ARGV).
 
 
 0.35     2010-07-01 (SHARYANTO)
 
-         Add scriptlet: trim.
+         - Add scriptlet: trim.
 
-         Add scriptlet: dedup-space.
+         - Add scriptlet: dedup-space.
 
 
 0.34     2010-06-30 (SHARYANTO)
 
-         Add test for each included scriptlet.
+         - Add test for each included scriptlet.
 
-         Provide $FILES (arrayref) for code.
+         - Provide $FILES (arrayref) for code.
 
 
 0.33     2010-06-29 (SHARYANTO)
 
-         Require Test::Exception [reported by cpantesters]
+         - Require Test::Exception [reported by cpantesters]
 
 
 0.32     2010-06-24 (SHARYANTO)
 
-         Fix failing tests on *cp*antesters machines.
+         - Fix failing tests on *cp*antesters machines.
 
 
 0.31     2010-06-23 (SHARYANTO)
 
-         Now requires Perl 5.10 (sorry guys).
+         - Now requires Perl 5.10 (sorry guys).
 
-         Switch to Getopt::Long, add long options (SawyerX++).
+         - Switch to Getopt::Long, add long options (SawyerX++).
 
-         Refactor code to be more OO (SawyerX++).
+         - Refactor code to be more OO (SawyerX++).
 
-         Refactor tests (multitude fails on various platforms reported
-         by cpantesters).
+         - Refactor tests (multitude fails on various platforms reported
+           by cpantesters).
 
 
 0.30     2010-05-21 (SHARYANTO)
 
-         Add option: -p (create intermediate dirs).
+         - Add option: -p (create intermediate dirs).
 
-         Add option: -M (mode rename/copy/symlink/link).
+         - Add option: -M (mode rename/copy/symlink/link).
 
-         Add new commands: perlcp, perlln, perlln_s.
+         - Add new commands: perlcp, perlln, perlln_s.
 
 
 0.29     2010-05-15 (SHARYANTO)
 
-         Fix -v.
+         - Fix -v.
 
 
 0.28     2010-05-15 (SHARYANTO)
 
-         Rename option: -r (recursive) -> -R
+         - Rename option: -r (recursive) -> -R
 
-         Add option: -r (reverse order)
+         - Add option: -r (reverse order)
 
-         $_ will be set to the result of code, if defined (so we can
-         just say -e 'lc' instead of -e '$_=lc')
+         - $_ will be set to the result of code, if defined (so we can just say
+           -e 'lc' instead of -e '$_=lc')
 
 
 0.27     2010-05-14 (SHARYANTO)
 
-         Adjust test to account for case-insensitive filesystems.
+         - Adjust test to account for case-insensitive filesystems.
 
 
 0.26     2010-05-13 (SHARYANTO)
 
-         Rename options: -S -> -s, -W -> -w, -L -> -l.
+         - Rename options: -S -> -s, -W -> -w, -L -> -l.
 
-         Add option: -S (skip symlinks).
+         - Add option: -S (skip symlinks).
 
-         Rename scriptlet: with-numbers- > to-number-ext.
+         - Rename scriptlet: with-numbers- > to-number-ext.
 
-         Add scriptlets: unaccent, to-timestamp-ext.
+         - Add scriptlets: unaccent, to-timestamp-ext.
 
 
 0.25     2010-05-13 (SHARYANTO)
 
-         Documentation.
+         - Documentation.
 
-         Sort -L output. -Lv will show each scriptlet's source.
+         - Sort -L output. -Lv will show each scriptlet's source.
 
 
 0.24     2010-05-12 (SHARYANTO)
 
-         First release to CPAN. Prior versions were not released and
-         named C<perlrename>.
+         - First release to CPAN. Prior versions were not released and named
+           C<perlrename>.
