@@ -59,35 +59,32 @@ sub run_perlmv {
     if ($which eq 'binary') {
         my $cmd = "perlrename";
         if ($opts->{mode}) {
-            given ($opts->{mode}) {
-                when ('m') { $cmd = "perlmv" }
-                when ('c') { $cmd = "perlcp" }
-                when ('s') { $cmd = "perlln_s" }
-                when ('l') { $cmd = "perlln" }
-            }
+            if    ($opts->{mode} eq 'm') { $cmd = "perlmv" }
+            elsif ($opts->{mode} eq 'c') { $cmd = "perlcp" }
+            elsif ($opts->{mode} eq 's') { $cmd = "perlln_s" }
+            elsif ($opts->{mode} eq 'l') { $cmd = "perlln" }
         }
         $cmd = "$Bin/../bin/$cmd";
         my @cmd = ($Perl, $cmd);
         for (keys %$opts) {
             my $v = $opts->{$_};
-            given ($_) {
-                when ('code')          { push @cmd, "-e", $v }
-                when ('compile')       { push @cmd, "-c" }
-                when ('dry_run')       { push @cmd, "-d" }
-                when ('mode')          { } # already processed above
-                when ('extra_opt')     { } # will be processed later
-                when ('extra_arg')     { } # will be processed later
-                when ('before_rmtree') { } # will be processed later
-                when ('overwrite')     { push @cmd, "-o" }
-                when ('parents')       { push @cmd, "-p" }
-                when ('recursive')     { push @cmd, "-R" }
-                when ('reverse_order') { push @cmd, "-r" }
-                when ('no_sort')       { push @cmd, "-T" }
-                when ('verbose')       { push @cmd, "-v" }
-                when ('codes')         {
-                    push @cmd, (map {ref($_) ? ("-x", $$_) : ("-e", $_)} @$v);
-                }
-                default { die "BUG: Can't handle opts{$_} yet!" }
+            if    ($_ eq 'code')          { push @cmd, "-e", $v }
+            elsif ($_ eq 'compile')       { push @cmd, "-c" }
+            elsif ($_ eq 'dry_run')       { push @cmd, "-d" }
+            elsif ($_ eq 'mode')          { } # already processed above
+            elsif ($_ eq 'extra_opt')     { } # will be processed later
+            elsif ($_ eq 'extra_arg')     { } # will be processed later
+            elsif ($_ eq 'before_rmtree') { } # will be processed later
+            elsif ($_ eq 'overwrite')     { push @cmd, "-o" }
+            elsif ($_ eq 'parents')       { push @cmd, "-p" }
+            elsif ($_ eq 'recursive')     { push @cmd, "-R" }
+            elsif ($_ eq 'reverse_order') { push @cmd, "-r" }
+            elsif ($_ eq 'no_sort')       { push @cmd, "-T" }
+            elsif ($_ eq 'verbose')       { push @cmd, "-v" }
+            elsif ($_ eq 'codes')         {
+                push @cmd, (map {ref($_) ? ("-x", $$_) : ("-e", $_)} @$v);
+            } else {
+                die "BUG: Can't handle opts{$_} yet!";
             }
         }
         if ($opts->{extra_opt}) { push @cmd, $opts->{extra_opt} }
