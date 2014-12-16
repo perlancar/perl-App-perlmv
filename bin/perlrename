@@ -14,7 +14,7 @@ $pmv->run;
 
 1;
 # ABSTRACT: Rename files using Perl code
-# PODNAME: perlrename
+# PODNAME:
 
 =head1 DESCRIPTION
 

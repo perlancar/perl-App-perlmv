@@ -14,7 +14,7 @@ $pmv->run;
 
 1;
 # ABSTRACT: Symlink files using Perl code
-# PODNAME: perlln_s
+# PODNAME:
 
 =head1 DESCRIPTION
 

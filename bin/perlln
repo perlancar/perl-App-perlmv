@@ -14,7 +14,7 @@ $pmv->run;
 
 1;
 # ABSTRACT: Link files using Perl code
-# PODNAME: perlln
+# PODNAME:
 
 =head1 DESCRIPTION
 
