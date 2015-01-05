@@ -10,6 +10,7 @@ use Cwd qw(abs_path getcwd);
 #use Data::Dump qw(dump);
 use File::Copy;
 use File::Find;
+use File::MoreUtil qw(l_abs_path);
 use File::Path qw(make_path);
 use File::Spec;
 use Getopt::Long qw(:config no_ignore_case bundling);
@@ -401,12 +402,12 @@ sub process_item {
     local $_ = $item->{name_for_script};
 
     my $old = $item->{real_name};
-    my $aold = abs_path($old);
-    #die "Invalid path $old" unless defined($aold);
-    $aold = "" if !defined($aold);
+    my $aold = l_abs_path($old);
+    die "Invalid path $old" unless defined($aold);
     my ($oldvol,$olddir,$oldfile)=File::Spec->splitpath($aold);
     my ($olddirvol,$olddirdir,$olddirfile) = File::Spec->splitpath(
-        abs_path($olddir));
+        l_abs_path($olddir));
+    my $aolddir = File::Spec->catpath($olddirvol, $olddirdir, '');
     local $App::perlmv::code::DIR    = $olddir;
     local $App::perlmv::code::FILE   = $oldfile;
     local $App::perlmv::code::PARENT = $olddirfile;
@@ -414,9 +415,7 @@ sub process_item {
     $self->run_code($code);
 
     my $new = $_;
-    my $anew = abs_path($new);
-    #die "Invalid path $new" unless defined($anew);
-    $anew = "" if !defined($anew);
+    my $anew = File::Spec->rel2abs($new, $aolddir);
 
     $self->{_exists}{$aold}++ if (-e $aold);
     return if $aold eq $anew;
@@ -449,7 +448,7 @@ sub process_item {
         while (1) {
             if ((-e $new) || exists $self->{_exists}{$anew}) {
                 $new = "$orig_new.$i";
-                $anew = abs_path($new);
+                $anew = l_abs_path($new);
                 $i++;
             } else {
                 last;

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 2*13;
+use Test::More tests => 2*13 + 1;
 use FindBin '$Bin';
 ($Bin) = $Bin =~ /(.+)/;
 
@@ -29,4 +29,14 @@ test_perlmv([qw/aab abb acb/], {codes=>[\'remove-common-prefix', '"file$_"', \'r
 test_perlmv([2, 3, 1], {code=>'$_+1'}, [2.1, 3.1, 4], 'no-sort off');
 test_perlmv([2, 3, 1], {code=>'$_+1', no_sort=>1}, [2, 3.1, 4], 'no-sort on');
 
+subtest "symlink to non-existing path" => sub {
+    plan skip_all => "symlink() not available" unless eval { symlink "",""; 1 };
+
+    test_perlmv([
+        {name=>"x1", link_target=>"nonexisting"},
+        {name=>"x2", link_target=>"nonexisting/2"},
+    ], {code=>'s/x/y/'}, ['y1', 'y2'], 'normal');
+};
+
+DONE_TESTING:
 end_testing();

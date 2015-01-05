@@ -40,7 +40,8 @@ sub test_perlmv {
         } else {
             create_files(@$files_before);
         }
-        run_perlmv($opts, $files_before, $which);
+        run_perlmv($opts, [map {ref($_) ? $_->{name}:$_} @$files_before],
+                   $which);
         if ($hook_after) {
             $hook_after->();
         } else {
@@ -131,7 +132,15 @@ sub run_perlmv {
 # lowercase first, and we never play with case-sensitivity.
 
 sub create_files {
-    do {open F, ">$_"; close F} for map { lc } @_;
+    for (@_) {
+        if (ref $_) {
+            if (defined $_->{link_target}) {
+                symlink $_->{link_target}, $_->{name};
+            }
+        } else {
+            open my($fh), ">", lc($_);
+        }
+    }
 }
 
 
