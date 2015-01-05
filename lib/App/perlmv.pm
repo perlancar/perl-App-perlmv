@@ -1,5 +1,7 @@
 package App::perlmv;
-# ABSTRACT: Rename files using Perl code
+
+# DATE
+# VERSION
 
 use 5.010;
 use strict;
@@ -11,8 +13,6 @@ use File::Find;
 use File::Path qw(make_path);
 use File::Spec;
 use Getopt::Long qw(:config no_ignore_case bundling);
-
-# VERSION
 
 sub new {
     my ($class) = @_;
@@ -541,7 +541,7 @@ sub rename {
 }
 
 1;
-# ABSTRACT: Module that implements perlmv
+# ABSTRACT: Rename files using Perl code
 
 =for Pod::Coverage ^(.*)$
 
