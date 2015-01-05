@@ -25,5 +25,6 @@ run_perlmv({code=>1, write=>'foo', overwrite=>1}, []);
 run_perlmv({delete=>'foo'}, []);
 dies_ok { run_perlmv({extra_opt=>"foo"}, ["1.txt"]) } 'remove: foo';
 
+DONE_TESTING:
 end_testing();
 

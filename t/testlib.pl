@@ -5,6 +5,7 @@ use FindBin '$Bin';
 use File::Path qw(remove_tree);
 use File::Temp qw(tempdir);
 use App::perlmv;
+use Test::More;
 
 our $Perl;
 our $Bin;
@@ -16,13 +17,28 @@ sub prepare_for_testing {
     $ENV{PATH} = "/usr/bin:/bin";
     $ENV{ENV} = "";
 
-    my $Dir = tempdir(CLEANUP=>1);
+    # weird, why is directory still getting cleaned up even though cwd is still
+    # at $Dir? this is not how things behave in, say, Git::Bunch test. i've also
+    # tried File::chdir to no avail. so currently we turn off CLEANUP option
+    # when debugging
+    $Dir = tempdir(CLEANUP=>$ENV{DEBUG} ? 0 : 1);
     $ENV{TESTING_HOME} = $Dir;
-    chdir $Dir or die "Can't chdir to $Dir: $!";
+    note "Dir=$Dir";
+    chdir $Dir or die "Can't chdir $Dir: $!";
 }
 
 sub end_testing {
-    chdir "/";
+    if (Test::More->builder->is_passing) {
+        diag "all tests successful, deleting test data dir";
+        chdir '/';
+    } else {
+        # don't delete test data dir if there are errors
+        diag "there are failing tests, not deleting test data dir $Dir";
+        # weird, why is directory still getting cleaned up even though cwd is
+        # still at $Dir? this is not how things behave in, say, Git::Bunch test.
+        # i've also tried File::chdir to no avail. so currently we turn off
+        # CLEANUP option when debugging
+    }
 }
 
 # each rename will be tested twice, first using the command line
@@ -34,7 +50,8 @@ sub test_perlmv {
     for my $which ("method", "binary") {
         my $subdir = "rand".int(90_000_000*rand()+10_000_000);
         mkdir $subdir or die "Can't mkdir $ENV{TESTING_HOME}/$subdir: $!";
-        chdir $subdir or die "Can't chdir to $ENV{TESTING_HOME}/$subdir: $!";
+        note "subdir=$subdir";
+        chdir $subdir or die "Can't chdir $ENV{TESTING_HOME}/$subdir: $!";
         if ($hook_before) {
             $hook_before->();
         } else {
@@ -48,8 +65,12 @@ sub test_perlmv {
             files_are($files_after, "$test_name ($which)");
         }
         remove_files();
-        chdir ".." or die "Can't chdir to ..: $!";
-        remove_tree($subdir) or die "Can't rmdir $ENV{TESTING_HOME}/$subdir: $!";
+        chdir '..' or die "Can't chdir ..: $!";
+        if (Test::More->builder->is_passing) {
+            remove_tree($subdir) or die "Can't rmdir $ENV{TESTING_HOME}/$subdir: $!";
+        } else {
+            note"there are failing tests, not deleting test data subdir $Dir/$subdir";
+        }
     }
 }
 

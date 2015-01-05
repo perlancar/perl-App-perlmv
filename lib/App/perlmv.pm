@@ -415,7 +415,9 @@ sub process_item {
     $self->run_code($code);
 
     my $new = $_;
-    my $anew = File::Spec->rel2abs($new, $aolddir);
+    # we use rel2abs instead of l_abs_path because path might not exist (yet)
+    # and we don't want to check for actual existence
+    my $anew = File::Spec->rel2abs($new);
 
     $self->{_exists}{$aold}++ if (-e $aold);
     return if $aold eq $anew;
