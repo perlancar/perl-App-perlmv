@@ -1,5 +1,13 @@
 Revision history for App-perlmv
 
+0.47     2014-05-15 (PERLANCAR)
+
+         - [Bugfix] Use l_abs_path() instead of abs_path() so we can handle
+           symlinks to non-existing targets. Also, use File::Spec->rel2abs()
+           instead of abs_path() to absolutize new/renamed file, because new
+           path might not exist (yet). [RT#101288]
+
+
 0.46     2014-05-15 (SHARYANTO)
 
          - No functional changes.
