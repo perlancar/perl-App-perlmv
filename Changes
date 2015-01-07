@@ -1,5 +1,13 @@
 Revision history for App-perlmv
 
+0.48    2015-01-07 (PERLANCAR)
+
+	- No functional changes.
+
+	- [Bugfix][dzil] Placed prereq File::MoreUtil in the wrong section
+	  [CT].
+
+
 0.47     2014-05-15 (PERLANCAR)
 
          - [Bugfix] Use l_abs_path() instead of abs_path() so we can handle
