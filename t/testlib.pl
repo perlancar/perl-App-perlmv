@@ -21,7 +21,7 @@ sub prepare_for_testing {
     # at $Dir? this is not how things behave in, say, Git::Bunch test. i've also
     # tried File::chdir to no avail. so currently we turn off CLEANUP option
     # when debugging
-    $Dir = tempdir(CLEANUP=>$ENV{DEBUG} ? 0 : 1);
+    $Dir = tempdir(CLEANUP=>$ENV{DEBUG_KEEP_TEMPDIR} ? 0 : 1);
     $ENV{TESTING_HOME} = $Dir;
     note "Dir=$Dir";
     chdir $Dir or die "Can't chdir $Dir: $!";
