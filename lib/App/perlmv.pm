@@ -418,6 +418,7 @@ sub process_item {
     # we use rel2abs instead of l_abs_path because path might not exist (yet)
     # and we don't want to check for actual existence
     my $anew = File::Spec->rel2abs($new);
+    defined($anew) or do { warn "Can't convert '$new' to absolute path"; return };
 
     $self->{_exists}{$aold}++ if (-e $aold);
     return if $aold eq $anew;

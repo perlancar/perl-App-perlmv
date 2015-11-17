@@ -29,7 +29,7 @@ sub prepare_for_testing {
 
 sub end_testing {
     if (Test::More->builder->is_passing) {
-        diag "all tests successful, deleting test data dir";
+        note "all tests successful, deleting test data dir";
         chdir '/';
     } else {
         # don't delete test data dir if there are errors
