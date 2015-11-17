@@ -1,5 +1,12 @@
 Revision history for App-perlmv
 
+0.50    2015-11-17 (PERLANCAR)
+
+	- Revert previous "fix", $anew becomes undef not because of
+	  rel2abs() but because of l_abs_path, apply patch by VLASENKO
+	  [RT#108952].
+
+
 0.49    2015-11-17 (PERLANCAR)
 
 	- Warn when rel2abs() fails [RT#108952].
