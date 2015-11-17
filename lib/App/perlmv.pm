@@ -418,7 +418,6 @@ sub process_item {
     # we use rel2abs instead of l_abs_path because path might not exist (yet)
     # and we don't want to check for actual existence
     my $anew = File::Spec->rel2abs($new);
-    defined($anew) or do { warn "Can't convert '$new' to absolute path"; return };
 
     $self->{_exists}{$aold}++ if (-e $aold);
     return if $aold eq $anew;
@@ -449,7 +448,7 @@ sub process_item {
     unless ($self->{'overwrite'}) {
         my $i = 1;
         while (1) {
-            if ((-e $new) || exists $self->{_exists}{$anew}) {
+            if ((-e $new) || defined($anew) && exists $self->{_exists}{$anew}) {
                 $new = "$orig_new.$i";
                 $anew = l_abs_path($new);
                 $i++;
