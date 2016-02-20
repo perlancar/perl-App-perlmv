@@ -1,12 +1,11 @@
 #!perl
 
+# DATE
+# VERSION
+
 use strict;
 use warnings;
-use FindBin '$Bin';
-use lib "$Bin/../lib";
 use App::perlmv;
-
-# VERSION
 
 my $pmv = App::perlmv->new;
 $pmv->{ 'mode' } = 'rename';

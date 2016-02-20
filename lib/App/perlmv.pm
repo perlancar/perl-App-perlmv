@@ -3,9 +3,10 @@ package App::perlmv;
 # DATE
 # VERSION
 
-use 5.010;
+use 5.010001;
 use strict;
 use warnings;
+
 use Cwd qw(abs_path getcwd);
 #use Data::Dump qw(dump);
 use File::Copy;
