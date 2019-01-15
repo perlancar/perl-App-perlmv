@@ -548,4 +548,9 @@ sub rename {
 
 =for Pod::Coverage ^(.*)$
 
+
+=head1 SEE ALSO
+
+L<App::RenameUtils>
+
 =cut
