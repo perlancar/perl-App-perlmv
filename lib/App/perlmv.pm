@@ -391,15 +391,16 @@ sub process_items {
                 }
             }
         }
-        $self->process_item($code, $code_is_final, $item, $items);
+        $self->process_item($code, $code_is_final, $item, $items, $i-1);
     }
 }
 
 sub process_item {
-    my ($self, $code, $code_is_final, $item, $items) = @_;
+    my ($self, $code, $code_is_final, $item, $items, $item_num) = @_;
 
     local $App::perlmv::code::FILES =
         [map {ref($_) ? $_->{name_for_script} : $_} @$items];
+    local $App::perlmv::code::FILENUM = $item_num;
     local $_ = $item->{name_for_script};
 
     my $old = $item->{real_name};

@@ -142,6 +142,11 @@ value.
 The filename of item (without path). The Perl code is not supposed to modify
 this value.
 
+=item * C<$FILENUM> (int)
+
+The index of $FILES currently being processed (starting from 0). The Perl code
+is not supposed to modify this value.
+
 =item * C<$DIR> (string)
 
 The directory of item (absolute path). The Perl code is not supposed to modify
