@@ -17,7 +17,7 @@ use File::Find;
 use File::MoreUtil qw(l_abs_path);
 use File::Path qw(make_path);
 use File::Spec;
-use Getopt::Long qw(:config no_ignore_case bundling);
+use Getopt::Long::Complete qw(GetOptionsWithCompletion);
 
 sub new {
     my ($class) = @_;
@@ -59,7 +59,41 @@ sub new {
 sub parse_opts {
     my $self = shift;
 
-    GetOptions(
+    GetOptionsWithCompletion(
+        sub {
+            my %args = @_;
+            my $word = $args{word};
+            my $type = $args{type};
+            my $seen_opts = $args{seen_opts};
+
+            if ($type eq 'arg') {
+                my $argpos = $args{argpos};
+                if ($argpos == 0 &&
+                        !exists($seen_opts->{'-x'}) && !exists($seen_opts->{'--execute'}) &&
+                        !exists($seen_opts->{'-e'}) && !exists($seen_opts->{'--eval'})) {
+                    require Complete::App::perlmv;
+                    return Complete::App::perlmv::complete_perlmv_scriptlet(word=>$word);
+                } else {
+                    require Complete::File;
+                    return Complete::File::complete_file(word=>$word);
+                }
+            } elsif ($type eq 'optval') {
+                my $opts = ref $args{opt} eq 'ARRAY' ? $args{opt} : [$args{opt}];
+                my @comps;
+                if (grep { $_ =~ /\A(-x|--execute|-D|--delete|-s|--show|-w|--write)\z/ } @$opts) {
+                    require Complete::App::perlmv;
+                    push @comps, Complete::App::perlmv::complete_perlmv_scriptlet(word=>$word);
+                }
+                if (grep { $_ eq '-M' || $_ eq '--mode' } @$opts) {
+                    require Complete::Util;
+                    push @comps, Complete::Util::complete_array_elem(word=>$word, array=>[qw/copy symlink link move rename/]);
+                }
+                require Complete::Util;
+                return Complete::Util::combine_answers(@comps);
+            }
+
+            undef;
+        },
         'c|check'         => \$self->{ 'check'         },
         'D|delete=s'      => \$self->{ 'delete'        },
         'd|dry-run'       => \$self->{ 'dry_run'       },

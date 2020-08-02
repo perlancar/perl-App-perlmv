@@ -1,3 +1,11 @@
+0.600   2020-08-02  Released-By: PERLANCAR
+
+        - Support searching for scriptlet in App::perlmv::scriptlet::* modules.
+          In this way, scriptlet code is written as normal Perl code instead of
+          inside a string, so it can get checked when loaded. You can also add
+          summary/description/tags etc.
+
+
 0.50    2015-11-17  Released-By: PERLANCAR
 
 	- Revert previous "fix", $anew becomes undef not because of
@@ -39,7 +47,9 @@
 
 0.45     2013-04-25  Released-By: SHARYANTO
 
-         - No functional changes. Move main POD from perlrename -> perlmv.
+         - No functional changes.
+
+         - Move main POD from perlrename -> perlmv.
 
 
 0.44     2013-04-25  Released-By: SHARYANTO
