@@ -1,11 +1,14 @@
 package App::perlmv;
 
+# AUTHORITY
 # DATE
+# DIST
 # VERSION
 
 use 5.010001;
 use strict;
 use warnings;
+#use Log::ger;
 
 use Cwd qw(abs_path getcwd);
 #use Data::Dump qw(dump);
@@ -144,7 +147,7 @@ sub run {
     }
     # convert all scriptlet names into their code
     for (@{ $self->{'codes'} }) {
-        $_ = $self->load_scriptlet($$_) if ref($_);
+        $_ = $self->get_scriptlet_code($$_) if ref($_) eq 'SCALAR';
     }
 
     die "FATAL: Please specify some files in arguments\n"
@@ -223,12 +226,19 @@ USAGE
     exit 0;
 }
 
-sub load_scriptlet {
+sub get_scriptlet_code {
     my ( $self, $name ) = @_;
     $self->load_scriptlets();
     die "FATAL: Can't find scriptlet `$name`"
         unless $self->{'scriptlets'}{$name};
-    return $self->{'scriptlets'}{$name}{'code'};
+    if (defined(my $mod = $self->{'scriptlets'}{$name}{'module'})) {
+        (my $mod_pm = "$mod.pm") =~ s!::!/!g;
+        require $mod_pm;
+        no strict 'refs';
+        ${"$mod\::SCRIPTLET"}->{code};
+    } else {
+        $self->{'scriptlets'}{$name}{'code'};
+    }
 }
 
 sub load_scriptlets {
@@ -239,6 +249,25 @@ sub load_scriptlets {
 sub find_scriptlets {
     my ($self) = @_;
     my $res    = {};
+
+    require File::Slurper;
+    require Module::List::Tiny;
+    {
+        my $mods = Module::List::Tiny::list_modules(
+            'App::perlmv::scriptlet::',
+            {list_modules=>1, recurse=>1, return_path=>1});
+        for my $mod (sort keys %$mods) {
+            my $name = $mod;
+            $name =~ s/\AApp::perlmv::scriptlet:://;
+            $name =~ s!::!/!g;
+            $name =~ s!_!-!g;
+            $res->{$name} = {
+                module => $mod,
+                code => File::Slurper::read_text($mods->{$mod}),
+                from => "App::perlmv::scriptlet::*",
+            };
+        }
+    }
 
     eval { require App::perlmv::scriptlets::std };
     if (%App::perlmv::scriptlets::std::scriptlets) {
@@ -282,7 +311,7 @@ sub find_scriptlets {
 
 sub valid_scriptlet_name {
     my ($self, $name) = @_;
-    $name =~ m/^[A-Za-z_][0-9A-Za-z_-]*$/;
+    $name =~ m!\A([A-Za-z0-9_][0-9A-Za-z_-]*/)*[A-Za-z0-9_][0-9A-Za-z_-]*\z!;
 }
 
 sub store_scriptlet {
@@ -330,8 +359,12 @@ sub run_code_for_cleaning {
     no warnings;
     local $_ = "-CLEAN";
     local $App::perlmv::code::CLEANING = 1;
-    eval "package App::perlmv::code; $code";
-    die "FATAL: Code doesn't run (cleaning): code=$code, errmsg=$@\n" if $@;
+    if (ref $code eq 'CODE') {
+        $code->();
+    } else {
+        eval "package App::perlmv::code; $code";
+        die "FATAL: Code doesn't run (cleaning): code=$code, errmsg=$@\n" if $@;
+    }
 }
 
 sub run_code {
@@ -341,9 +374,13 @@ sub run_code {
     my $orig_ = $_;
     local $App::perlmv::code::TESTING = 0;
     local $App::perlmv::code::COMPILING = 0;
-    # It does need a package declaration to run it in App::perlmv::code
-    my $res = eval "package App::perlmv::code; $code";
-    die "FATAL: Code doesn't compile: code=$code, errmsg=$@\n" if $@;
+    my $res;
+    if (ref $code eq 'CODE') {
+        $res = $code->();
+    } else {
+        $res = eval "package App::perlmv::code; $code";
+        die "FATAL: Code doesn't compile: code=$code, errmsg=$@\n" if $@;
+    }
     if (defined($res) && length($res) && $_ eq $orig_) { $_ = $res }
 }
 
@@ -532,7 +569,7 @@ sub rename {
     local $self->{'recursive'} = $self->{'recursive'};
     for (my $i=0; $i < @{ $self->{'codes'} }; $i++) {
         my $code = $self->{'codes'}[$i];
-        $self->compile_code($code) unless $self->{'compiled'};
+        $self->compile_code($code) unless $self->{'compiled'} || ref $code eq 'CODE';
         next if $self->{'check'};
         my $code_is_final = ($i == @{ $self->{'codes'} }-1);
         $self->{'recursive'} = 0 if $i;

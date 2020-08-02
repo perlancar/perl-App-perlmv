@@ -1,10 +1,13 @@
 package App::perlmv::scriptlets::std;
 
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
+
 use 5.010;
 use strict;
 use warnings;
-
-# VERSION
 
 # ABSTRACT: A collection of perlmv scriptlets
 
@@ -51,48 +54,6 @@ $scriptlets{'pinyin'} = <<'EOT';
 ### Requires: Lingua::Han::Pinyin
 use Lingua::Han::PinYin;
 $h||=Lingua::Han::PinYin->new; $h->han2pinyin($_)
-EOT
-
-=head2 remove-common-prefix
-
-Remove prefix that are common to all args, e.g. (file1, file2b) -> (1,
-2b)
-
-=cut
-
-$scriptlets{'remove-common-prefix'} = <<'EOT';
-### Summary: Remove prefix that are common to all args, e.g. (file1, file2b) -> (1, 2b)
-if (!defined($COMMON_PREFIX) && !$TESTING) {
-    for ($i=0; $i<length($FILES->[0]); $i++) {
-        last if grep { substr($_, $i, 1) ne substr($FILES->[0], $i, 1) } @{$FILES}[1..@$FILES-1];
-    }
-    $COMMON_PREFIX = substr($FILES->[0], 0, $i);
-}
-s/^\Q$COMMON_PREFIX//;
-$_
-EOT
-
-=head2 remove-common-suffix
-
-Remove suffix that are common to all args, while preserving extension,
-e.g. (1-radiolab.mp3, 2-radiolab.mp3) -> (1.mp3, 2.mp3)
-
-=cut
-
-$scriptlets{'remove-common-suffix'} = <<'EOT';
-### Summary: Remove suffix that are common to all args, while preserving extension, e.g. (1-radiolab.mp3, 2-radiolab.mp3) -> (1.mp3, 2.mp3)
-if (!defined($COMMON_SUFFIX) && !$TESTING) {
-    for (@$FILES) { $_ = reverse };
-    for ($i=0; $i<length($FILES->[0]); $i++) {
-        last if grep { substr($_, $i, 1) ne substr($FILES->[0], $i, 1) } @{$FILES}[1..@$FILES-1];
-    }
-    $COMMON_SUFFIX = reverse substr($FILES->[0], 0, $i);
-    for (@$FILES) { $_ = reverse };
-    # don't wipe extension, if exists
-    $EXT = $COMMON_SUFFIX =~ /.(\.\w+)$/ ? $1 : "";
-}
-s/\Q$COMMON_SUFFIX\E$/$EXT/;
-$_
 EOT
 
 =head2 remove-ext

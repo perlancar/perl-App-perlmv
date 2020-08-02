@@ -169,10 +169,14 @@ phase (in which Perl code will be run with $CLEANING set to true) that can be
 used for cleaning purposes in between runs. This is however irrelevant to
 B<perlmv> command as there is only a single run.
 
-Perl code can be specified directly from the command line (using B<-e>), or by
-name in C<~/.perlmv/scriptlets/NAME>, or in C</usr/share/perlmv/scriptlets/>, or
-in C<%scriptlets> in L<App::perlmv::scriptlets>, or in C<%scriptlets> in
-L<App::perlmv::scriptlets::std>.
+Perl code can be specified directly from the command line (using B<-e>), or (in
+order of precedence from the highest) by name in C<~/.perlmv/scriptlets/NAME>,
+or in C</usr/share/perlmv/scriptlets/>, or in C<%scriptlets> in
+L<App::perlmv::scriptlets>, or in C<%scriptlets> in
+L<App::perlmv::scriptlets::std>, or in C<$SCRIPTLET> in
+L<App::perlmv::scriptlet::*> (for examples see
+L<App::perlmv::scriptlet::rename_common_prefix> and
+L<App::perlmv::scriptlet::rename_common_suffix>).
 
 =head1 OPTIONS
 
