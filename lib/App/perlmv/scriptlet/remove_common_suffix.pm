@@ -32,4 +32,6 @@ our $SCRIPTLET = {
     },
 };
 
+1;
+
 # ABSTRACT:

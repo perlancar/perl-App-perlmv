@@ -1,3 +1,5 @@
+## no critic: ValuesAndExpressions::ProhibitCommaSeparatedStatements
+
 package App::perlmv;
 
 # AUTHORITY

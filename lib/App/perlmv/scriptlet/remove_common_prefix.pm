@@ -29,6 +29,8 @@ our $SCRIPTLET = {
     },
 };
 
+1;
+
 # ABSTRACT:
 
 =head1 DESCRIPTION

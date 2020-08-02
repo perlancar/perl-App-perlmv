@@ -5,6 +5,8 @@
           inside a string, so it can get checked when loaded. You can also add
           summary/description/tags etc.
 
+        - Add tab completion support.
+
 
 0.50    2015-11-17  Released-By: PERLANCAR
 
