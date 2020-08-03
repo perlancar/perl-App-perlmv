@@ -271,6 +271,7 @@ sub get_scriptlet_code {
         (my $mod_pm = "$mod.pm") =~ s!::!/!g;
         require $mod_pm;
         no strict 'refs';
+        ${"$mod\::SCRIPTLET"} or die "Package $mod does not define \$SCRIPTLET";
         ${"$mod\::SCRIPTLET"}->{code};
     } else {
         $self->{'scriptlets'}{$name}{'code'};
