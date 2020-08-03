@@ -50,6 +50,7 @@ sub new {
         process_symlink => 1,
         recursive       => 0,
         verbose         => 0,
+        args            => {},
     };
 
     bless $self, $class;
@@ -116,6 +117,7 @@ sub parse_opts {
         'V|version'       => sub { $self->print_version()          },
         # we use \scalar to differentiate between -x and -e
         'x|execute=s'     => sub { push @{$self->{'codes'}}, \$_[1]},
+        'a|arg=s%'        => $self->{'args'},
         '<>'              => sub { $self->parse_extra_opts(@_)     },
     ) or $self->print_help();
 }
@@ -256,6 +258,7 @@ Options:
  -x <NAME> Execute a scriptlet. Can be specified multiple times. -x is optional
      if there is only one scriptlet to execute, and scriptlet name is specified
      as the first argument, and there is no -e specified.
+ -a <arg=value> (--arg) Supply arguments for code/scriptlet.
 
 USAGE
 
@@ -386,6 +389,7 @@ sub compile_code {
     local $_ = "-TEST";
     local $App::perlmv::code::TESTING = 1;
     local $App::perlmv::code::COMPILING = 1;
+    local $App::perlmv::code::ARGS = $self->{'args'};
     eval "package App::perlmv::code; $code";
     die "FATAL: Code doesn't compile: code=$code, errmsg=$@\n" if $@;
 }
@@ -396,6 +400,7 @@ sub run_code_for_cleaning {
     no warnings;
     local $_ = "-CLEAN";
     local $App::perlmv::code::CLEANING = 1;
+    local $App::perlmv::code::ARGS = $self->{'args'};
     if (ref $code eq 'CODE') {
         $code->();
     } else {
@@ -411,6 +416,7 @@ sub run_code {
     my $orig_ = $_;
     local $App::perlmv::code::TESTING = 0;
     local $App::perlmv::code::COMPILING = 0;
+    local $App::perlmv::code::ARGS = $self->{'args'};
     my $res;
     if (ref $code eq 'CODE') {
         $res = $code->();
