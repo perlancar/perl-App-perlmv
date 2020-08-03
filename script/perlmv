@@ -6,6 +6,7 @@
 use strict;
 use warnings;
 use App::perlmv;
+use Getopt::Long::Complete; # just so we can detect script as using Getopt::Long::Complete
 
 my $pmv = App::perlmv->new;
 #$pmv->{ 'mode' } = 'move'; # the default
