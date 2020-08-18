@@ -1,3 +1,8 @@
+0.604   2020-08-18  Released-By: PERLANCAR; Urgency: medium
+
+	- Make $PERLMV available to scriptlet.
+
+
 0.603   2020-08-04  Released-By: PERLANCAR; Urgency: low
 
 	- No functional changes.
