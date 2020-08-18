@@ -133,6 +133,12 @@ The following variables are also available to the Perl code:
 
 =over 4
 
+=item * C<$PERLMV> (object)
+
+The L<App::perlmv> object. No matter what CLI is being run (L<perlmv>,
+L<perlrename>, L<perlcp>, ...) the variable is still L<$PERLMV>. Can be used to
+get various settings. The Perl code is not supposed to modify this value.
+
 =item * C<$FILES> (arrayref)
 
 The list of items to be processed. The Perl code is not supposed to modify this
