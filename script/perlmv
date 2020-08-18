@@ -220,6 +220,8 @@ L<App::perlmv::scriptlet::rename_common_suffix>).
  -x <NAME> Execute a scriptlet. Can be specified multiple times. -x is optional
      if there is only one scriptlet to execute, and scriptlet name is specified
      as the first argument, and there is no -e specified.
+ -a <arg=value> (--arg) Supply arguments for code/scriptlet.
+
 
 =head1 FAQ
 
