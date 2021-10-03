@@ -14,7 +14,7 @@ our $SCRIPTLET = {
     code => sub {
         package
             App::perlmv::code;
-        use vars qw($COMMON_SUFFIX $TESTING $FILES $EXT);
+        our ($COMMON_SUFFIX, $TESTING, $FILES, $EXT);
 
         if (!defined($COMMON_SUFFIX) && !$TESTING) {
             for (@$FILES) { $_ = reverse };
