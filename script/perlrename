@@ -1,12 +1,14 @@
 #!perl
 
-# DATE
-# VERSION
-
 use strict;
 use warnings;
 use App::perlmv;
 use Getopt::Long::Complete; # just so we can detect script as using Getopt::Long::Complete
+
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
 
 my $pmv = App::perlmv->new;
 $pmv->{ 'mode' } = 'rename';
