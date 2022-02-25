@@ -1,13 +1,13 @@
 package Complete::App::perlmv;
 
+use 5.010001;
+use strict;
+use warnings;
+
 # AUTHORITY
 # DATE
 # DIST
 # VERSION
-
-use 5.010001;
-use strict;
-use warnings;
 
 use Exporter 'import';
 our @EXPORT_OK = qw(

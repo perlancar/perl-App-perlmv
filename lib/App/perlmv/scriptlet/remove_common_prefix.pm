@@ -1,13 +1,13 @@
 package App::perlmv::scriptlet::remove_common_prefix;
 
+use 5.010001;
+use strict;
+use warnings;
+
 # AUTHORITY
 # DATE
 # DIST
 # VERSION
-
-use 5.010001;
-use strict;
-use warnings;
 
 our $SCRIPTLET = {
     summary => 'Remove prefix that are common to all args, e.g. (file1, file2b) -> (1, 2b)',

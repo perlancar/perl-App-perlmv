@@ -1,3 +1,8 @@
+0.604   2022-02-25  Released-By: PERLANCAR; Urgency: medium
+
+        - [test] Allow the scripts to find App::perlmv in lib/ (RT#133289).
+
+
 0.603   2020-08-04  Released-By: PERLANCAR; Urgency: low
 
 	- No functional changes.
