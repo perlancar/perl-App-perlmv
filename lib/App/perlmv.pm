@@ -382,11 +382,13 @@ sub delete_user_scriptlet {
     unlink "$self->{homedir}/.perlmv/scriptlets/$name";
 }
 
+# keep sync with run_code(), run_code_for_cleaning()
 sub compile_code {
     my ($self, $code) = @_;
     no strict;
     no warnings;
     local $_ = "-TEST";
+    local $App::perlmv::code::PERLMV = $self;
     local $App::perlmv::code::TESTING = 1;
     local $App::perlmv::code::COMPILING = 1;
     local $App::perlmv::code::ARGS = $self->{'args'};
@@ -394,11 +396,13 @@ sub compile_code {
     die "FATAL: Code doesn't compile: code=$code, errmsg=$@\n" if $@;
 }
 
+# keep sync with run_code(), compile_code()
 sub run_code_for_cleaning {
     my ($self, $code) = @_;
     no strict;
     no warnings;
     local $_ = "-CLEAN";
+    local $App::perlmv::code::PERLMV = $self;
     local $App::perlmv::code::CLEANING = 1;
     local $App::perlmv::code::ARGS = $self->{'args'};
     if (ref $code eq 'CODE') {
@@ -409,11 +413,13 @@ sub run_code_for_cleaning {
     }
 }
 
+# keep sync with run_code_for_cleaning(), compile_code()
 sub run_code {
     my ($self, $code) = @_;
     no strict;
     no warnings;
     my $orig_ = $_;
+    local $App::perlmv::code::PERLMV = $self;
     local $App::perlmv::code::TESTING = 0;
     local $App::perlmv::code::COMPILING = 0;
     local $App::perlmv::code::ARGS = $self->{'args'};

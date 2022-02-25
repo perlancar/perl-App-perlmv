@@ -135,6 +135,12 @@ The following variables are also available to the Perl code:
 
 =over 4
 
+=item * C<$PERLMV> (object)
+
+The L<App::perlmv> object. No matter what CLI is being run (L<perlmv>,
+L<perlrename>, L<perlcp>, ...) the variable is still L<$PERLMV>. Can be used to
+get various settings. The Perl code is not supposed to modify this value.
+
 =item * C<$FILES> (arrayref)
 
 The list of items to be processed. The Perl code is not supposed to modify this
@@ -216,6 +222,8 @@ L<App::perlmv::scriptlet::rename_common_suffix>).
  -x <NAME> Execute a scriptlet. Can be specified multiple times. -x is optional
      if there is only one scriptlet to execute, and scriptlet name is specified
      as the first argument, and there is no -e specified.
+ -a <arg=value> (--arg) Supply arguments for code/scriptlet.
+
 
 =head1 FAQ
 
