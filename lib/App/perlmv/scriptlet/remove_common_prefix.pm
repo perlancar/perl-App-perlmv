@@ -14,7 +14,7 @@ our $SCRIPTLET = {
     code => sub {
         package
             App::perlmv::code;
-        use vars qw($COMMON_PREFIX $TESTING $FILES);
+        our ($COMMON_PREFIX, $TESTING, $FILES);
 
         if (!defined($COMMON_PREFIX) && !$TESTING) {
             my $i;
