@@ -16,7 +16,7 @@ use Cwd qw(abs_path getcwd);
 #use Data::Dump qw(dump);
 use File::Copy;
 use File::Find;
-use File::MoreUtil qw(l_abs_path);
+use File::Util::Test qw(l_abs_path);
 use File::Path qw(make_path);
 use File::Spec;
 use Getopt::Long::Complete qw(GetOptionsWithCompletion);
